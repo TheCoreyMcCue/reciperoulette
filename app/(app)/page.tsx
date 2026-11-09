@@ -19,11 +19,11 @@ export default function HomePage() {
       <ButtonLink
         href="/roulette?spin=1"
         size="lg"
-        className="w-full justify-between rounded-3xl py-4 text-left shadow-md sm:w-auto sm:min-w-80"
+        className="w-full justify-between py-4 text-left sm:w-auto sm:min-w-80"
       >
         <span>
-          <span className="block font-display text-xl">Can&apos;t decide?</span>
-          <span className="block text-sm font-normal opacity-90">Spin the rotation</span>
+          <span className="block font-display text-2xl font-semibold">Can&apos;t decide?</span>
+          <span className="block text-base font-semibold">Spin the rotation</span>
         </span>
         <SpinIcon width={36} height={36} />
       </ButtonLink>

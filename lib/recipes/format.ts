@@ -19,18 +19,9 @@ export function formatRelativeDay(iso: string | null, now: Date = new Date()): s
 
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-/** Pleasant placeholder colours for recipes without a photo. */
-const PALETTE = [
-  ["#f6d7c3", "#b8461b"],
-  ["#dcebd5", "#3f6b3a"],
-  ["#f7e6b5", "#8a5a00"],
-  ["#e9d8ef", "#6b3d7a"],
-  ["#d6e6f2", "#2f5d7c"],
-  ["#f3d1d1", "#9b2c2c"],
-] as const;
-
-export function placeholderColors(seed: string): readonly [string, string] {
+/** Stable pick of a placeholder illustration for recipes without a photo. */
+export function placeholderIndex(seed: string, count: number): number {
   let h = 0;
   for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return PALETTE[h % PALETTE.length]!;
+  return h % count;
 }

@@ -1,43 +1,51 @@
 import Link from "next/link";
-import { ClockIcon, RepeatIcon } from "@/components/icons";
+import { ClockIcon } from "@/components/icons";
+import { cardClass } from "@/components/ui/card";
+import { cn } from "@/components/ui/cn";
+import { DraftStamp, DRAFT_TAG, isDraft, RotationStamp, Tag } from "@/components/ui/tag";
 import { formatMinutes } from "@/lib/recipes/format";
 import type { RecipeSummary } from "@/lib/recipes/summary";
-import { RecipeImage } from "./recipe-image";
+import { RecipeSnapshot } from "./recipe-image";
 
-/** Compact row on phones, image-first card from `sm` up. */
+/**
+ * An index card: title over a thin paprika line, faint ruled lines behind the
+ * details, and the photo clipped on like a snapshot.
+ */
 export function RecipeCard({ recipe, priority }: { recipe: RecipeSummary; priority?: boolean }) {
+  const draft = isDraft(recipe.tags);
+  const tags = recipe.tags.filter((t) => t !== DRAFT_TAG).slice(0, 3);
   return (
     <Link
       href={`/recipes/${recipe.id}`}
-      className="group flex h-full overflow-hidden rounded-3xl border border-border bg-surface shadow-sm transition hover:shadow-md sm:block"
+      className={cn(cardClass, "card-lift group flex h-full flex-col", draft && "border-dashed border-mustard")}
     >
-      <div className="relative aspect-square w-28 shrink-0 overflow-hidden sm:aspect-[4/3] sm:w-auto">
-        <RecipeImage title={recipe.title} imageUrl={recipe.imageUrl} priority={priority} className="transition group-hover:scale-[1.02]" />
-        {recipe.inRotation && (
-          <span className="absolute left-3 top-3 hidden items-center gap-1 rounded-full bg-herb px-2.5 py-1 text-xs font-bold text-white shadow sm:inline-flex dark:text-[#10180e]">
-            <RepeatIcon width={14} height={14} /> Rotation
-          </span>
-        )}
+      <div className="flex items-start gap-3 px-4 pt-4">
+        <div className="min-w-0 flex-1 pb-2">
+          {draft && <DraftStamp className="mb-1.5" />}
+          <h3 className="line-clamp-3 font-display text-xl font-semibold leading-snug">{recipe.title}</h3>
+        </div>
+        <RecipeSnapshot title={recipe.title} imageUrl={recipe.imageUrl} priority={priority} className="-mt-1 mb-2 h-20 w-20 sm:h-24 sm:w-24" />
       </div>
-      <div className="min-w-0 flex-1 space-y-1.5 p-3.5 sm:space-y-2 sm:p-4">
-        <h3 className="line-clamp-2 font-display text-lg font-semibold leading-snug">{recipe.title}</h3>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
-          {recipe.inRotation && (
-            <span className="inline-flex items-center gap-1 font-semibold text-herb sm:hidden">
-              <RepeatIcon width={14} height={14} /> Rotation
-            </span>
-          )}
+      <div className="title-rule mx-4" aria-hidden="true" />
+      {/* Every row is exactly one rule step tall so the lines sit under the text. */}
+      <div className="ruled flex flex-1 flex-col px-4 pb-2 [--rule-step:2rem]">
+        <div className="flex min-h-8 flex-wrap items-center gap-x-3 text-sm text-muted">
           {recipe.totalTime != null && (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex h-8 items-center gap-1 tabular-nums">
               <ClockIcon width={16} height={16} /> {formatMinutes(recipe.totalTime)}
             </span>
           )}
+          {recipe.inRotation && (
+            <span className="inline-flex h-8 items-center">
+              <RotationStamp />
+            </span>
+          )}
         </div>
-        {recipe.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {recipe.tags.slice(0, 3).map((t) => (
-              <span key={t} className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">
-                {t}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-1.5">
+            {tags.map((t) => (
+              <span key={t} className="inline-flex h-8 items-center">
+                <Tag>{t}</Tag>
               </span>
             ))}
           </div>
