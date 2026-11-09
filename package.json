@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1164.0",
     "@aws-sdk/lib-dynamodb": "^3.1164.0",
+    "@node-rs/argon2": "^2.2.2",
     "next": "16.4.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",
