@@ -15,6 +15,7 @@
     "dev:memory": "RR_MEMORY_DB=1 next dev"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
     "@aws-sdk/client-dynamodb": "^3.1164.0",
     "@aws-sdk/lib-dynamodb": "^3.1164.0",
     "@node-rs/argon2": "^2.2.2",
