@@ -1,0 +1,103 @@
+{
+  title: 'Kimchi Noodle Soup with Scallions',
+  description: '*',
+  cookTime: '20',
+  image: '',
+  category: 'Dinner',
+  categories: ['Korean', 'dinner', '*'],
+  ingredients: [
+    { amount: '2', unit: 'packages', name: 'udon noodles' },
+    { amount: '1', unit: 'cups', name: 'kimchi, chopped' },
+    { amount: '2', unit: 'tablespoons', name: 'gochujang' },
+    { amount: '4', unit: 'whole', name: 'scallions thinly sliced' },
+    { amount: 'to taste', unit: '', name: 'salt' }
+  ],
+  steps: ['Boil the noodles.', 'Fry the kimchi in a pan.', 'Combine and top with scallions.'],
+  createdAt: ISODate('2023-04-01T18:00:00.000Z'),
+  __v: NumberInt('0')
+}
+
+{
+  _id: ObjectId('64a000000000000000000001'),
+  title: 'Kimchi Noodles',
+  description: 'Quick weeknight noodles',
+  cookTime: '15',
+  image: 'https://utfs.io/f/abc123.jpg',
+  categories: ['Korean'],
+  ingredients: [
+    { amount: '2', unit: 'packet', name: 'udon noodles' },
+    { amount: '1', unit: 'cup', name: 'kimchi' },
+    { amount: '1', unit: 'tablespoons', name: 'gochujang' },
+    { amount: '3', unit: 'whole', name: 'scallions' }
+  ],
+  steps: ['Cook noodles.', 'Add kimchi and gochujang.', 'Serve with scallions.'],
+  createdAt: ISODate('2023-05-02T18:00:00.000Z')
+}{
+  _id: ObjectId('64a000000000000000000002'),
+  title: 'Spice Rub',
+  description: 'Rub with paprika, cumin and cloves.',
+  cookTime: '5',
+  category: 'Spices',
+  ingredients: [
+    { amount: '2', unit: 'tablespoons', name: 'paprika' },
+    { amount: '1', unit: 'tablespoons', name: 'cumin' },
+    { amount: '2', unit: 'pinch', name: 'salt' },
+    { amount: '1', unit: 'teaspoons', name: 'black pepper' }
+  ],
+  steps: ['Mix everything.', 'Add the cloves last.', 'Store in a jar.'],
+  createdAt: ISODate('2022-01-01T00:00:00.000Z')
+}
+
+{
+  _id: ObjectId('64a000000000000000000002'),
+  title: 'Spice Rub',
+  description: 'duplicate record',
+  ingredients: [],
+  steps: ['*']
+}
+
+{
+  _id: ObjectId('64a000000000000000000003'),
+  title: 'Lemon Chicken ',
+  description: 'Bright and easy',
+  cookTime: '45',
+  category: 'Dinner',
+  ingredients: [
+    { amount: '1.5', unit: 'pounds', name: 'chicken thighs' },
+    { amount: '3', unit: 'cloves', name: 'garlic, smashed' },
+    { amount: '1', unit: 'teaspoons', name: 'salt divided' },
+    { amount: 'splash', unit: '', name: 'white wine' },
+    { amount: '350-450', unit: 'grams', name: 'potatoes' },
+    { amount: '14', unit: 'ounces', name: 'toasted sesame oil' },
+    { amount: '1', unit: 'pinch', name: 'baby spinach' },
+    { amount: '2', unit: 'tablespoons', name: 'tablespoons olive oil' },
+    { amount: '1', unit: 'bunch', name: 'scallions coarsely chopperk-green parts thinly slicedd, da' },
+    { amount: '1', unit: 'smidgen', name: 'sumac' }
+  ],
+  steps: ['﻿Preheat the oven to 400 degrees.', 'Roast the chicken 30 minutes.', 'Squeeze over lemon.'],
+  createdAt: ISODate('2021-06-01T12:00:00.000Z')
+}
+
+{
+  _id: ObjectId('64a000000000000000000004'),
+  title: 'Tuna Pasta',
+  description: 'pasta, tuna, rode ui, capers',
+  cookTime: '',
+  ingredients: [ { amount: '200', unit: 'grams', name: 'pasta' } ],
+  steps: ['*'],
+  createdAt: ISODate('2024-02-02T00:00:00.000Z')
+}
+
+{
+  _id: ObjectId('64a000000000000000000005'),
+  title: 'Tacos',
+  description: '',
+  cookTime: '30',
+  ingredients: [
+    { amount: '1', unit: 'pounds', name: 'flank steak' },
+    { amount: '8', unit: 'whole', name: 'corn tortillas' },
+    { amount: '1', unit: 'whole', name: 'onion' }
+  ],
+  steps: ['Season and grill the steak.', 'Warm the tortillas.', 'dice half an onion and set aside. in a small serving bowl'],
+  createdAt: ISODate('2024-03-03T00:00:00.000Z')
+}

@@ -130,3 +130,19 @@ describe("backfill helpers", () => {
     expect(after?.updatedAt).toBe(a.updatedAt);
   });
 });
+
+describe("legacy import helpers", () => {
+  it("keeps the original createdAt and legacyId, and overwrite keeps id and cook stats", async () => {
+    const input = RecipeInputSchema.parse({ title: "Old soup", sourceType: "import", ingredients: [{ quantity: "1", unit: "cup", item: "flour" }] });
+    const r = await recipes.createRecipe({ householdId: "h1", userId: "u1", input, createdAt: "2021-06-01T12:00:00.000Z", legacyId: "64a0", inRotation: true });
+    expect(r).toMatchObject({ createdAt: "2021-06-01T12:00:00.000Z", legacyId: "64a0", sourceType: "import" });
+    expect(r.updatedAt > r.createdAt).toBe(true);
+    await recipes.markCooked("h1", r.id);
+    const fresh = (await recipes.getRecipe("h1", r.id))!;
+    const replaced = await recipes.replaceImportedRecipe(fresh, { ...input, title: "Old soup v2" }, "2021-06-01T12:00:00.000Z");
+    const after = (await recipes.getRecipe("h1", r.id))!;
+    expect(after).toMatchObject({ id: r.id, title: "Old soup v2", timesCooked: 1, inRotation: true, legacyId: "64a0" });
+    expect(after.ingredients[0]).toMatchObject({ category: "dry", gramsPerCup: 120 });
+    expect(replaced.id).toBe(r.id);
+  });
+});

@@ -121,3 +121,11 @@ describe("classification", () => {
     }
   });
 });
+
+describe("pepper", () => {
+  it("treats ground pepper as a spice but keeps bell peppers separate", () => {
+    expect(classifyFromTable("black pepper")).toEqual({ category: "dry", gramsPerCup: 125 });
+    expect(classifyFromTable("freshly ground black pepper")).toEqual({ category: "dry", gramsPerCup: 125 });
+    expect(classifyFromTable("red bell pepper")).toEqual({ category: "dry", gramsPerCup: 150 });
+  });
+});

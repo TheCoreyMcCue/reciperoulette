@@ -4,7 +4,7 @@ import type { UnitSystem } from "./constants";
  * Converts oven temperatures inside step text. Returns segments so the UI
  * can style converted parts and show the original on hover/tap.
  *
- * Metric: 350°F / 350 F / 350 degrees F / 350 degrees (≥ 275, assumed °F) → 175°C; gas mark 4 → "gas mark 4 (180°C)".
+ * Metric: 350°F / 350 F / 350 degrees F / 350 degrees (> 250, assumed °F) → 175°C; gas mark 4 → "gas mark 4 (180°C)".
  * US:     180°C / 180 C / 180 graden / 180 degrees C → 350°F; gas mark 4 → "gas mark 4 (350°F)".
  * Both:   "moderate oven" → "moderate oven (≈180°C)" / "(≈350°F)"; also slow, moderately hot, hot, very hot.
  */
@@ -45,8 +45,9 @@ function detectScale(value: number, sign: string, word: string | undefined, lett
   }
   if (word && /graden/i.test(word)) return "C";
   if (hasSign || word) {
-    // "350 degrees" / "350°": ovens above 275 are Fahrenheit in practice; below that it's ambiguous.
-    return value >= 275 ? "F" : null;
+    // "400 degrees" / "350°": no home oven goes above 250 °C, so higher values are Fahrenheit;
+    // 250 or below is ambiguous and left alone.
+    return value > 250 ? "F" : null;
   }
   return null;
 }

@@ -13,7 +13,8 @@
     "db:setup": "tsx --env-file-if-exists=.env.local scripts/db-setup.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/db-seed.ts",
     "dev:memory": "RR_MEMORY_DB=1 next dev",
-    "db:backfill-units": "tsx --env-file-if-exists=.env.local scripts/db-backfill-units.ts"
+    "db:backfill-units": "tsx --env-file-if-exists=.env.local scripts/db-backfill-units.ts",
+    "db:import-legacy": "tsx --env-file-if-exists=.env.local scripts/db-import-legacy.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",
@@ -34,6 +35,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "json5": "^2.2.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

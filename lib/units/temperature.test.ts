@@ -16,6 +16,8 @@ describe("temperatures in step text", () => {
     ["Bake at 350 F for 30 minutes", "Bake at 175°C for 30 minutes"],
     ["Heat oven to 350F", "Heat oven to 175°C"],
     ["Preheat to 350 degrees.", "Preheat to 175°C."],
+    ["Preheat the oven to 400 degrees", "Preheat the oven to 205°C"],
+    ["Bake at 275 degrees", "Bake at 135°C"],
     ["Bake at 425 degrees Fahrenheit", "Bake at 220°C"],
     ["Roast at 375–400°F", "Roast at 190–205°C"],
     ["Oven at 350 °F / gas mark 4", "Oven at 175°C / gas mark 4 (180°C)"],
@@ -25,6 +27,7 @@ describe("temperatures in step text", () => {
     expect(metric("Bake at 180°C for 20 minutes")).toBe("Bake at 180°C for 20 minutes");
     expect(metric("Bake for 20 minutes, then 200 g flour")).toBe("Bake for 20 minutes, then 200 g flour");
     expect(metric("Heat to 180 degrees")).toBe("Heat to 180 degrees"); // could be either
+    expect(metric("Bake at 250 degrees")).toBe("Bake at 250 degrees"); // 250 °C exists on home ovens
     expect(metric("Use 2 cups of flour")).toBe("Use 2 cups of flour");
     expect(metric("Add 350 ml of water")).toBe("Add 350 ml of water");
   });

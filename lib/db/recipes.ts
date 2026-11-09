@@ -84,6 +84,9 @@ export async function createRecipe(params: {
   input: RecipeInput;
   rawSourceText?: string;
   inRotation?: boolean;
+  /** Imports only: keep the original creation date. */
+  createdAt?: string;
+  legacyId?: string;
 }): Promise<Recipe> {
   const { householdId, userId } = params;
   const input = withClassification(RecipeInputSchema.parse(params.input));
@@ -97,7 +100,8 @@ export async function createRecipe(params: {
     lastCookedAt: null,
     skipUntil: null,
     createdBy: userId,
-    createdAt: now,
+    legacyId: params.legacyId ?? null,
+    createdAt: params.createdAt ?? now,
     updatedAt: now,
   };
   const { doc, table } = db();
@@ -262,4 +266,22 @@ export async function replaceIngredientsIfUnchanged(
     if (isConditionalCheckFailed(err)) return false;
     throw err;
   }
+}
+
+/**
+ * Imports only (--overwrite): replaces an imported recipe's content in place,
+ * keeping its id, cook stats and rotation/skip choices.
+ */
+export async function replaceImportedRecipe(existing: Recipe, input: RecipeInput, createdAt: string): Promise<Recipe> {
+  const parsed = withClassification(RecipeInputSchema.parse(input));
+  const recipe: Recipe = { ...existing, ...parsed, createdAt, updatedAt: nowIso() };
+  const { doc, table } = db();
+  await doc.send(
+    new PutCommand({
+      TableName: table,
+      Item: { ...k.recipe(existing.householdId, existing.id), entity: "Recipe", ...recipe },
+      ConditionExpression: "attribute_exists(PK)",
+    }),
+  );
+  return recipe;
 }

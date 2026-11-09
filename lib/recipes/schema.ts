@@ -6,7 +6,7 @@ import { z } from "zod";
  * keep forms simple; numeric fields that may be unknown are nullable.
  */
 
-export const SOURCE_TYPES = ["photo", "text", "url", "social", "manual"] as const;
+export const SOURCE_TYPES = ["photo", "text", "url", "social", "manual", "import"] as const;
 export type SourceType = (typeof SOURCE_TYPES)[number];
 
 const text = (max: number) => z.string().trim().max(max).default("");
@@ -81,6 +81,8 @@ export const RecipeSchema = RecipeInputSchema.extend({
   /** "Not this week": excluded from spins until this ISO timestamp. */
   skipUntil: z.string().nullable().default(null),
   createdBy: z.string(),
+  /** Id in the app this recipe was imported from (e.g. the old MongoDB _id). */
+  legacyId: z.string().nullable().default(null),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
