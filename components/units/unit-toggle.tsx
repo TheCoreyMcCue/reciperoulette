@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/components/ui/cn";
+import { dividerTabClass, dividerTabsClass } from "@/components/ui/divider-tabs";
 import type { UnitSystem } from "@/lib/units/constants";
 import { useUnits } from "./units-context";
 
@@ -19,7 +20,7 @@ export function UnitToggleView({
 }) {
   // Styled like index-card divider tabs standing on a baseline; still a plain, labelled radio group.
   return (
-    <div role="radiogroup" aria-label="Units" className={cn("inline-flex items-end gap-1 border-b-2 border-paprika", className)}>
+    <div role="radiogroup" aria-label="Units" className={cn(dividerTabsClass, className)}>
       {(Object.keys(LABELS) as UnitSystem[]).map((s) => {
         const on = value === s;
         return (
@@ -29,13 +30,7 @@ export function UnitToggleView({
             role="radio"
             aria-checked={on}
             onClick={() => onChange(s)}
-            className={cn(
-              "-mb-0.5 rounded-t-[6px] border border-b-0 font-bold transition duration-200 ease-out",
-              compact ? "px-3 text-sm" : "px-4 text-base",
-              on
-                ? "min-h-12 border-paprika bg-paprika text-on-paprika"
-                : "min-h-11 border-line bg-kraft text-muted hover:text-ink",
-            )}
+            className={dividerTabClass(on, compact)}
           >
             {LABELS[s]}
           </button>

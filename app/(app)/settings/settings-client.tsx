@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/components/ui/cn";
+import { dividerTabClass, dividerTabsClass } from "@/components/ui/divider-tabs";
 import { Alert, inputClass } from "@/components/ui/field";
 import { UnitToggleView } from "@/components/units/unit-toggle";
 import type { UnitSystem } from "@/lib/units/constants";
@@ -56,6 +58,7 @@ export function RevokeButton({ sessionId, current }: { sessionId: string; curren
     <Button
       size="sm"
       variant="danger"
+      className="shrink-0 whitespace-nowrap"
       disabled={pending}
       onClick={() => {
         if (current && !confirm("Sign out on this device?")) return;
@@ -85,14 +88,15 @@ export function ThemeToggle() {
   };
 
   return (
-    <div role="radiogroup" aria-label="Appearance" className="inline-flex rounded-full border border-border bg-surface p-1">
+    // Same divider-tab look as the units toggle.
+    <div role="radiogroup" aria-label="Appearance" className={dividerTabsClass}>
       {(["system", "light", "dark"] as const).map((t) => (
         <button
           key={t}
           role="radio"
           aria-checked={theme === t}
           onClick={() => apply(t)}
-          className={`min-h-10 rounded-full px-4 text-sm font-semibold capitalize ${theme === t ? "bg-primary text-primary-ink" : "text-muted"}`}
+          className={cn(dividerTabClass(theme === t), "capitalize")}
         >
           {t === "system" ? "Auto" : t}
         </button>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
+import { Card, CardTitle } from "@/components/ui/card";
 import { PageLoading } from "@/components/ui/spinner";
+import { Tag } from "@/components/ui/tag";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { listMySessions } from "@/lib/auth/manage";
 import { requireSession } from "@/lib/auth/session";
@@ -14,13 +16,13 @@ export const metadata: Metadata = { title: "Settings" };
 
 function Section({ title, children, description }: { title: string; description?: string; children: ReactNode }) {
   return (
-    <section className="space-y-3 rounded-3xl border border-border bg-surface p-5">
+    <Card className="space-y-3 sm:p-6">
       <div>
-        <h2 className="font-display text-xl font-semibold">{title}</h2>
-        {description && <p className="text-sm text-muted">{description}</p>}
+        <CardTitle>{title}</CardTitle>
+        {description && <p className="mt-2 text-sm text-muted">{description}</p>}
       </div>
       {children}
-    </section>
+    </Card>
   );
 }
 
@@ -62,33 +64,33 @@ async function SettingsContent() {
       </p>
 
       <Section title={household?.name ?? "Household"} description="Everyone here shares one recipe box.">
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-line">
           {members.map((m) => (
-            <li key={m.userId} className="flex items-center justify-between py-3">
+            <li key={m.userId} className="flex items-center justify-between gap-3 py-3">
               <div>
                 <p className="font-semibold">{m.name}{m.userId === session.userId && " (you)"}</p>
                 <p className="text-sm text-muted">{m.email}</p>
               </div>
-              <span className="rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold capitalize text-muted">{m.role}</span>
+              <Tag>{m.role}</Tag>
             </li>
           ))}
         </ul>
         {me?.role === "owner" && (
-          <div className="border-t border-border pt-4">
-            <h3 className="mb-2 font-semibold">Invite someone</h3>
+          <div className="border-t border-line pt-4">
+            <h3 className="mb-2 font-bold">Invite someone</h3>
             <InviteCard />
           </div>
         )}
       </Section>
 
       <Section title="Signed-in devices" description="You stay signed in for a year after you last open the app.">
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-line">
           {sessions.map((s) => (
             <li key={s.sessionId} className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0">
-                <p className="font-semibold">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold">
                   {s.device}
-                  {s.current && <span className="ml-2 rounded-full bg-herb-soft px-2 py-0.5 text-xs text-herb">This device</span>}
+                  {s.current && <Tag tone="sage">This device</Tag>}
                 </p>
                 <p className="text-sm text-muted">Last active {fmt(s.lastSeenAt)}</p>
               </div>
@@ -100,19 +102,19 @@ async function SettingsContent() {
 
       {usage && (
         <Section title="AI imports this month" description={`Limit: ${env().AI_DAILY_PARSE_LIMIT} per day for the household.`}>
-          <dl className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-2xl bg-surface-2 p-3">
-              <dt className="text-xs text-muted">Imports</dt>
+          <dl className="grid grid-cols-3 gap-3 text-center tabular-nums">
+            <div className="rounded-card bg-kraft p-3">
+              <dt className="text-xs font-bold uppercase tracking-[0.08em] text-muted">Imports</dt>
               <dd className="font-display text-2xl font-semibold">{usage.calls}</dd>
             </div>
-            <div className="rounded-2xl bg-surface-2 p-3">
-              <dt className="text-xs text-muted">Tokens</dt>
+            <div className="rounded-card bg-kraft p-3">
+              <dt className="text-xs font-bold uppercase tracking-[0.08em] text-muted">Tokens</dt>
               <dd className="font-display text-2xl font-semibold">
                 {Math.round((usage.inputTokens + usage.outputTokens + usage.cacheReadTokens + usage.cacheWriteTokens) / 1000)}k
               </dd>
             </div>
-            <div className="rounded-2xl bg-surface-2 p-3">
-              <dt className="text-xs text-muted">≈ Cost</dt>
+            <div className="rounded-card bg-kraft p-3">
+              <dt className="text-xs font-bold uppercase tracking-[0.08em] text-muted">≈ Cost</dt>
               <dd className="font-display text-2xl font-semibold">${cost.toFixed(2)}</dd>
             </div>
           </dl>
