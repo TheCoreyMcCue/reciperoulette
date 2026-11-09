@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Nunito } from "next/font/google";
+import { ServiceWorkerRegister } from "@/components/sw-register";
 import "./globals.css";
 
 const heading = Fraunces({ variable: "--font-heading", subsets: ["latin"] });
@@ -10,6 +11,13 @@ export const metadata: Metadata = {
   description: "Our recipe box, our rotation, and a button for when we can't decide.",
   applicationName: "reciperoulette",
   appleWebApp: { capable: true, title: "reciperoulette", statusBarStyle: "default" },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -38,7 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full font-sans">{children}</body>
+      <body className="min-h-full font-sans">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }

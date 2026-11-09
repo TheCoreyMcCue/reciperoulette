@@ -33,10 +33,9 @@ export function useImport() {
     ticker.current = null;
   };
 
-  useEffect(() => () => {
-    stopTicker();
-    abort.current?.abort();
-  }, []);
+  // Note: we deliberately don't abort in-flight requests on unmount (it wouldn't stop the
+  // server-side work, and React StrictMode's simulated unmount would kill auto-started imports).
+  useEffect(() => () => stopTicker(), []);
 
   const run = useCallback(async (req: ImportRequest, firstLabel?: string) => {
     abort.current?.abort();
