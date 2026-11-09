@@ -88,11 +88,15 @@ describe("weighting", () => {
 
 describe("buildReel", () => {
   it("ends on the pick without repeating neighbours", () => {
-    const pool = [r("a"), r("b"), r("c")];
-    const reel = buildReel(pool, pool[1]!, 18);
-    expect(reel).toHaveLength(18);
-    expect(reel.at(-1)!.id).toBe("b");
-    for (let i = 1; i < reel.length; i++) expect(reel[i]!.id).not.toBe(reel[i - 1]!.id);
+    for (const size of [2, 3, 5]) {
+      const pool = Array.from({ length: size }, (_, i) => r(`r${i}`));
+      for (let run = 0; run < 200; run++) {
+        const reel = buildReel(pool, pool[1]!, 18);
+        expect(reel).toHaveLength(18);
+        expect(reel.at(-1)!.id).toBe("r1");
+        for (let i = 1; i < reel.length; i++) expect(reel[i]!.id).not.toBe(reel[i - 1]!.id);
+      }
+    }
   });
 
   it("handles a single-recipe pool", () => {

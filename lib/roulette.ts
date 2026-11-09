@@ -122,14 +122,11 @@ export function buildReel<T extends { id: string }>(pool: T[], pick: T, length =
   const reel: T[] = [];
   let prev: string | null = null;
   for (let i = 0; i < length - 1; i++) {
-    const options = pool.filter((p) => p.id !== prev);
-    const next = options[Math.floor(rand() * options.length)]!;
+    const isLastBeforePick = i === length - 2;
+    const options = pool.filter((p) => p.id !== prev && !(isLastBeforePick && p.id === pick.id));
+    const next = options[Math.floor(rand() * options.length)] ?? pool.find((p) => p.id !== pick.id)!;
     reel.push(next);
     prev = next.id;
-  }
-  if (reel[reel.length - 1]?.id === pick.id) {
-    const alt = pool.find((p) => p.id !== pick.id);
-    if (alt) reel[reel.length - 1] = alt;
   }
   reel.push(pick);
   return reel;
