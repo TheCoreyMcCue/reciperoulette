@@ -41,6 +41,12 @@ export function IngredientLine({ ingredient, interactive = true }: { ingredient:
       {amountEl}
       {amountEl && " "}
       {ingredient.item}
+      {d.secondary && (
+        <span className="text-muted" title="Approximate metric equivalent">
+          {" "}
+          (≈ {d.secondary.quantity} {d.secondary.unit})
+        </span>
+      )}
       {ingredient.note && <span className="text-muted">, {ingredient.note}</span>}
       {showOriginal && interactive && <span className="ml-1.5 text-xs text-muted">(as written)</span>}
     </span>

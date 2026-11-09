@@ -76,6 +76,32 @@ describe("metric: spoons stay spoons for small amounts", () => {
   });
 });
 
+describe("metric: small spoons show the metric equivalent alongside", () => {
+  it.each([
+    ["2 tbsp olive oil", { quantity: "30", unit: "ml" }],
+    ["1/2 tsp vanilla extract", { quantity: "2.5", unit: "ml" }],
+    ["4 tbsp flour", { quantity: "30", unit: "g" }],
+    ["1 T honey", { quantity: "21", unit: "g" }],
+    ["1 tsp baking powder", { quantity: "4", unit: "g" }],
+    ["1-2 tsp salt", { quantity: "6–12", unit: "g" }],
+    ["2 el olijfolie", { quantity: "30", unit: "ml" }],
+  ])("%s", (line, secondary) => {
+    const d = convertIngredient(ing(line), "metric");
+    expect(d).toMatchObject({ converted: false, secondary });
+  });
+
+  it("adds nothing when it can't say or the amount is negligible", () => {
+    expect(convertIngredient(ing("1 tsp gochujang"), "metric").secondary).toBeUndefined(); // unknown
+    expect(convertIngredient(ing("1/8 tsp cinnamon"), "metric").secondary).toBeUndefined(); // < 0.5 g
+    expect(convertIngredient(ing("1 tsp baking powder"), "us").secondary).toBeUndefined();
+    expect(convertIngredient(ing("1 tsp baking powder"), "original").secondary).toBeUndefined();
+  });
+
+  it("appears in plain-text lines", () => {
+    expect(formatConvertedLine(ing("1 tsp baking soda, dissolved in warm water"), "metric")).toBe("1 tsp baking soda (≈ 6 g), dissolved in warm water");
+  });
+});
+
 describe("weights stay weights", () => {
   it.each([
     ["8 oz cream cheese", "225 g"],

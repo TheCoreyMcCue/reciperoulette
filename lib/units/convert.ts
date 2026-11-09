@@ -40,6 +40,11 @@ export type DisplayAmount = {
   converted: boolean;
   /** True when the conversion is approximate (show "≈"). */
   approx: boolean;
+  /**
+   * Metric mode only: for small spoon amounts that stay spoons, the
+   * approximate metric equivalent shown alongside ("1 tsp … (≈ 4 g)").
+   */
+  secondary?: { quantity: string; unit: string };
 };
 
 type Measure =
@@ -106,6 +111,27 @@ function toMetric(i: ConvertibleIngredient, unit: CanonicalUnit, m: Measure, cat
   return null; // dry/fat without density, or unknown: don't guess
 }
 
+/** Spoons are exact multiples of 1.25 ml, so keep small ml values precise ("2.5 ml"). */
+function smallMl(v: number): string {
+  if (v >= 15) return String(Math.round(v / 5) * 5);
+  const r = Math.round(v * 10) / 10;
+  return Number.isInteger(r) ? String(r) : r.toFixed(1);
+}
+
+/** Below this a gram figure is meaningless on a kitchen scale (e.g. a pinch of salt). */
+const MIN_SECONDARY_G = 0.5;
+
+/** Metric equivalent for a spoon amount that stays a spoon, or null if we can't say. */
+function spoonEquivalent(ml: { low: number; high: number | null }, category: IngredientCategory, density: number | null) {
+  if ((category === "dry" || category === "fat" || category === "liquid") && density) {
+    const g = (v: number) => (v / US_CUP_ML) * density;
+    if (g(ml.low) < MIN_SECONDARY_G) return null;
+    return formatGrams(g(ml.low), ml.high == null ? null : g(ml.high));
+  }
+  if (category === "liquid") return { quantity: joinRange(smallMl(ml.low), ml.high == null ? null : smallMl(ml.high)), unit: "ml" };
+  return null;
+}
+
 // ---- US --------------------------------------------------------------------
 
 function usVolume(ml: Amount): { quantity: string; unit: string } {
@@ -168,7 +194,13 @@ export function convertIngredient(i: ConvertibleIngredient, system: UnitSystem, 
   if (!m || (category === "count" && m.kind !== "weight")) return scaledOriginal(i, a, scale, unit);
 
   const out = system === "metric" ? toMetric(i, unit, m, category) : toUs(i, unit, m);
-  return out ?? scaledOriginal(i, a, scale, unit);
+  if (out) return out;
+  const base = scaledOriginal(i, a, scale, unit);
+  if (system === "metric" && isSpoon(unit) && m.kind === "volume") {
+    const secondary = spoonEquivalent(m, category, i.gramsPerCup ?? null);
+    if (secondary) return { ...base, secondary };
+  }
+  return base;
 }
 
 /** "≈ 120 g flour, sifted" style line for plain-text contexts. */
@@ -178,6 +210,7 @@ export function formatConvertedLine(
   opts?: { scale?: number },
 ): string {
   const d = convertIngredient(i, system, opts);
-  const main = [d.approx ? "≈" : "", d.quantity, d.unit, i.item].filter(Boolean).join(" ");
+  let main = [d.approx ? "≈" : "", d.quantity, d.unit, i.item].filter(Boolean).join(" ");
+  if (d.secondary) main += ` (≈ ${d.secondary.quantity} ${d.secondary.unit})`;
   return i.note ? `${main}, ${i.note}` : main;
 }

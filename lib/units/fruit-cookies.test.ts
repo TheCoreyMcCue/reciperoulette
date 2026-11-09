@@ -17,7 +17,8 @@ const stored = fixture.ingredients.map((i) => IngredientSchema.parse(i));
 const metric = (ings: typeof stored) =>
   Object.fromEntries(ings.map((i) => {
     const d = convertIngredient(i, "metric");
-    return [i.item, `${d.quantity} ${d.unit}`.trim()];
+    const extra = d.secondary ? ` (≈ ${d.secondary.quantity} ${d.secondary.unit})` : "";
+    return [i.item, `${d.quantity} ${d.unit}`.trim() + extra];
   }));
 
 const EXPECTED = {
@@ -25,14 +26,14 @@ const EXPECTED = {
   lard: "205 g",
   eggs: "3",
   flour: "420 g",
-  vanilla: "1 tsp",
+  vanilla: "1 tsp (≈ 5 ml)",
   nuts: "120 g",
   raisins: "450 g",
-  cinnamon: "1 tsp",
-  cloves: "1/2 tsp",
-  "baking powder": "1 tsp",
-  salt: "1 tsp",
-  "baking soda": "1 tsp",
+  cinnamon: "1 tsp (≈ 3 g)",
+  cloves: "1/2 tsp (≈ 1 g)",
+  "baking powder": "1 tsp (≈ 4 g)",
+  salt: "1 tsp (≈ 6 g)",
+  "baking soda": "1 tsp (≈ 6 g)",
 };
 
 describe("Fruit Cookies regression", () => {
