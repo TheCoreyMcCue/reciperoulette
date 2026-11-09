@@ -119,15 +119,11 @@ export function spin<T extends RouletteCandidate>(
  */
 export function buildReel<T extends { id: string }>(pool: T[], pick: T, length = 18, rand: () => number = Math.random): T[] {
   if (pool.length <= 1) return Array.from({ length: Math.min(length, 6) }, () => pick);
-  const reel: T[] = [];
-  let prev: string | null = null;
-  for (let i = 0; i < length - 1; i++) {
-    const isLastBeforePick = i === length - 2;
-    const options = pool.filter((p) => p.id !== prev && !(isLastBeforePick && p.id === pick.id));
-    const next = options[Math.floor(rand() * options.length)] ?? pool.find((p) => p.id !== pick.id)!;
-    reel.push(next);
-    prev = next.id;
+  // Built backwards from the pick so neighbours never repeat, even with 2 recipes.
+  const reel: T[] = [pick];
+  while (reel.length < length) {
+    const options = pool.filter((p) => p.id !== reel[0]!.id);
+    reel.unshift(options[Math.floor(rand() * options.length)]!);
   }
-  reel.push(pick);
   return reel;
 }
