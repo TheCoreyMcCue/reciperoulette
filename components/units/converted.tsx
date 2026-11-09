@@ -24,14 +24,14 @@ export function IngredientLine({ ingredient, interactive = true }: { ingredient:
       onClick={() => setRevealedFor(showOriginal ? null : system)}
       aria-expanded={showOriginal}
       title={`As written: ${written}`}
-      className="rounded font-bold underline decoration-dotted decoration-muted/60 underline-offset-4"
+      className="rounded-[3px] font-bold tabular-nums underline decoration-paprika/70 decoration-dotted decoration-2 underline-offset-[5px]"
     >
-      {d.approx && !showOriginal && <span className="font-normal text-muted" aria-label="about">≈ </span>}
+      {d.approx && !showOriginal && <span className="font-semibold text-sage-ink" aria-label="about">≈ </span>}
       {showOriginal ? written : amount}
     </button>
   ) : (
-    <strong className={cn(d.converted && "underline decoration-dotted decoration-muted/60 underline-offset-4")} title={d.converted ? `As written: ${written}` : undefined}>
-      {d.approx && <span className="font-normal text-muted">≈ </span>}
+    <strong className={cn("tabular-nums", d.converted && "underline decoration-paprika/70 decoration-dotted decoration-2 underline-offset-[5px]")} title={d.converted ? `As written: ${written}` : undefined}>
+      {d.approx && <span className="font-semibold text-sage-ink">≈ </span>}
       {amount}
     </strong>
   );
@@ -61,7 +61,7 @@ export function StepText({ text }: { text: string }) {
     <>
       {segments.map((s, i) =>
         s.original ? (
-          <span key={i} title={`As written: ${s.original}`} className="underline decoration-dotted decoration-muted/60 underline-offset-4">
+          <span key={i} title={`As written: ${s.original}`} className="underline decoration-paprika/70 decoration-dotted decoration-2 underline-offset-[5px]">
             {s.text}
           </span>
         ) : (

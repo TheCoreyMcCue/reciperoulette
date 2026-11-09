@@ -5,7 +5,6 @@ import { useOptimistic, useState, useTransition } from "react";
 import { deleteRecipeAction, markCookedAction, setRotationAction } from "@/app/(app)/recipes/actions";
 import { CheckIcon, EditIcon, FlameIcon, RepeatIcon, TrashIcon } from "@/components/icons";
 import { Button, buttonClass } from "@/components/ui/button";
-import { cn } from "@/components/ui/cn";
 import { Alert } from "@/components/ui/field";
 import { formatRelativeDay } from "@/lib/recipes/format";
 import type { Recipe } from "@/lib/recipes/schema";
@@ -60,8 +59,9 @@ export function RecipeActions({ recipe }: { recipe: Recipe }) {
       <Button size="lg" className="w-full" onClick={() => setCooking(true)}>
         <FlameIcon /> Start cooking
       </Button>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2">
         <Button
+          className="whitespace-nowrap px-3"
           variant={optimistic.inRotation ? "sage" : "secondary"}
           onClick={toggleRotation}
           aria-pressed={optimistic.inRotation}
@@ -69,21 +69,21 @@ export function RecipeActions({ recipe }: { recipe: Recipe }) {
           <RepeatIcon width={20} height={20} />
           {optimistic.inRotation ? "In rotation" : "Add to rotation"}
         </Button>
-        <Button variant="secondary" onClick={markCooked} disabled={justCooked}>
+        <Button variant="secondary" className="whitespace-nowrap px-3" onClick={markCooked} disabled={justCooked}>
           <CheckIcon width={20} height={20} />
           {justCooked ? "Marked!" : "Mark as cooked"}
         </Button>
       </div>
-      <p className="text-center text-sm text-muted">
+      <p className="text-center text-sm text-muted tabular-nums">
         {optimistic.timesCooked > 0
           ? `Cooked ${optimistic.timesCooked} ${optimistic.timesCooked === 1 ? "time" : "times"}, last ${formatRelativeDay(optimistic.lastCookedAt)}`
           : "Not cooked yet"}
       </p>
-      <div className="flex justify-center gap-2">
+      <div className="flex justify-center gap-3 border-t border-line pt-3">
         <Link href={`/recipes/${recipe.id}/edit`} className={buttonClass("ghost", "sm")}>
           <EditIcon width={18} height={18} /> Edit
         </Link>
-        <Button variant="ghost" size="sm" onClick={remove} className={cn("text-danger")}>
+        <Button variant="danger" size="sm" onClick={remove}>
           <TrashIcon width={18} height={18} /> Delete
         </Button>
       </div>
