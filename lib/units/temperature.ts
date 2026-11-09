@@ -6,6 +6,7 @@ import type { UnitSystem } from "./constants";
  *
  * Metric: 350°F / 350 F / 350 degrees F / 350 degrees (≥ 275, assumed °F) → 175°C; gas mark 4 → "gas mark 4 (180°C)".
  * US:     180°C / 180 C / 180 graden / 180 degrees C → 350°F; gas mark 4 → "gas mark 4 (350°F)".
+ * Both:   "moderate oven" → "moderate oven (≈180°C)" / "(≈350°F)"; also slow, moderately hot, hot, very hot.
  */
 
 export type TextSegment = { text: string; original?: string };
@@ -19,6 +20,18 @@ const GAS_MARK_C: Record<string, number> = { "1/4": 110, "1/2": 120, "1": 140, "
 const TEMP_RE =
   /(?<![\d.,/])(\d{2,3})(?:\s*(?:-|–|—|to|tot)\s*(\d{2,3}))?(\s*(?:°|º|˚)\s*|\s*)(degrees?|deg\.?|graden)?(\s*)(fahrenheit|celsius|F|C)?(?![\p{L}\d])/giu;
 const GAS_RE = /\bgas(?:\s*mark)?\s*(\d(?:\/\d)?)\b/gi;
+
+/** Old-fashioned oven descriptions (°C, °F). Longer phrases first. */
+const OVEN_WORDS: [RegExp, number, number][] = [
+  [/\bvery\s+slow\s+oven\b/gi, 120, 250],
+  [/\bmoderately\s+slow\s+oven\b/gi, 160, 325],
+  [/\bmoderately\s+hot\s+oven\b/gi, 190, 375],
+  [/\bmoderately\s+hot\b(?=[^.]*\boven\b)|(?<=\boven\b[^.]*)\bmoderately\s+hot\b/gi, 190, 375],
+  [/\bvery\s+hot\s+oven\b/gi, 230, 450],
+  [/\bslow\s+oven\b/gi, 150, 300],
+  [/\bmoderate\s+oven\b/gi, 180, 350],
+  [/\b(?:hot|quick)\s+oven\b/gi, 220, 425],
+];
 
 type Scale = "F" | "C";
 
@@ -63,6 +76,15 @@ export function convertTemperaturesInText(text: string, system: UnitSystem): Tex
     if (!c) continue;
     const temp = target === "C" ? `${c}°C` : `${cToF(c)}°F`;
     replacements.push({ start: m.index!, end: m.index! + m[0].length, text: `${m[0]} (${temp})` });
+  }
+
+  for (const [re, c, f] of OVEN_WORDS) {
+    for (const m of text.matchAll(re)) {
+      const start = m.index!;
+      const end = start + m[0].length;
+      if (replacements.some((r) => start < r.end && end > r.start)) continue; // a longer phrase already matched
+      replacements.push({ start, end, text: `${m[0]} (≈${target === "C" ? `${c}°C` : `${f}°F`})` });
+    }
   }
 
   if (!replacements.length) return [{ text }];

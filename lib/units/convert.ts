@@ -13,6 +13,7 @@ import {
   WEIGHT_G,
   type CanonicalUnit,
 } from "./normalize";
+import { effectiveClassification } from "./classify";
 import { amountMax, parseQuantity, scaleAmount, type Amount } from "./quantity";
 
 /**
@@ -26,6 +27,8 @@ import { amountMax, parseQuantity, scaleAmount, type Amount } from "./quantity";
 export type ConvertibleIngredient = {
   quantity: string;
   unit: string;
+  /** Used for the density-table fallback when nothing is stored. */
+  item?: string;
   category?: IngredientCategory | null;
   gramsPerCup?: number | null;
 };
@@ -154,7 +157,10 @@ export function convertIngredient(i: ConvertibleIngredient, system: UnitSystem, 
   if (!parsed) return asWritten(i);
   const a = scaleAmount(parsed, scale);
   const unit = normalizeUnit(i.unit);
-  const category: IngredientCategory = i.category ?? "unknown";
+  // Stored classification wins; unclassified ingredients fall back to the density table.
+  const cls = effectiveClassification(i);
+  const category: IngredientCategory = cls.category;
+  i = { ...i, category: cls.category, gramsPerCup: cls.gramsPerCup };
 
   if (system === "original" || !unit) return scaledOriginal(i, a, scale, unit);
   const m = toMeasure(unit, a, category);

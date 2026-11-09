@@ -1,0 +1,21 @@
+{
+  "_comment": "Exact ingredients/steps of the 'Fruit Cookies' recipe as stored in DynamoDB before classification (no category/gramsPerCup keys).",
+  "ingredients": [
+    { "quantity": "2", "quantityValue": 2, "unit": "cups", "item": "brown sugar", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "cup", "item": "lard", "note": "", "group": "" },
+    { "quantity": "3", "quantityValue": 3, "unit": "", "item": "eggs", "note": "", "group": "" },
+    { "quantity": "3 1/2", "quantityValue": 3.5, "unit": "cups", "item": "flour", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "tsp", "item": "vanilla", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "cup", "item": "nuts", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "lb", "item": "raisins", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "tsp", "item": "cinnamon", "note": "", "group": "" },
+    { "quantity": "1/2", "quantityValue": 0.5, "unit": "tsp", "item": "cloves", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "tsp", "item": "baking powder", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "tsp", "item": "salt", "note": "", "group": "" },
+    { "quantity": "1", "quantityValue": 1, "unit": "tsp", "item": "baking soda", "note": "dissolved in warm water", "group": "" }
+  ],
+  "steps": [
+    "Mix all together - drop from spoon onto cookie sheet and bake in moderate oven.",
+    "Can use 1 cup raisins and 1 cup dates instead of 1 lb raisins."
+  ]
+}
