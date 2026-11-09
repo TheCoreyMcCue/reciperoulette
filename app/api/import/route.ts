@@ -3,6 +3,7 @@ import { MAX_IMAGES } from "@/lib/ai/parse-recipe";
 import { requireApiSession, UnauthorizedError } from "@/lib/auth/session";
 import { importFromImages } from "@/lib/importers/photo";
 import { importFromText } from "@/lib/importers/text";
+import { importFromUrl } from "@/lib/importers/url";
 import type { ImportResponse } from "@/lib/importers/types";
 
 export const maxDuration = 60;
@@ -16,6 +17,7 @@ const ImageSchema = z.object({
 });
 
 const BodySchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("url"), url: z.string().trim().min(4).max(2000), translate: z.boolean().default(false) }),
   z.object({ kind: z.literal("text"), text: z.string().trim().min(10, "Paste a bit more text").max(200_000), translate: z.boolean().default(false) }),
   z.object({
     kind: z.literal("images"),
@@ -59,6 +61,8 @@ export async function POST(req: Request) {
     switch (body.kind) {
       case "text":
         return json(await importFromText(body.text, body.translate, ctx));
+      case "url":
+        return json(await importFromUrl(body.url, body.translate, ctx));
       case "images":
         return json(await importFromImages(body.images, body.text, body.translate, ctx));
     }
