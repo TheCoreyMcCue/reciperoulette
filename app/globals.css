@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* Class-based dark mode that also follows the OS by default (see ThemeScript). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #fbf6ee;
+  --surface: #ffffff;
+  --surface-2: #f4ebdd;
+  --ink: #2a1f16;
+  --muted: #6b5a4a;
+  --border: #e6d8c3;
+  --primary: #b8461b; /* paprika, 5.6:1 on white */
+  --primary-ink: #ffffff;
+  --primary-soft: #fbe3d4;
+  --herb: #3f6b3a; /* basil */
+  --herb-soft: #e1eedb;
+  --danger: #b42318;
+  --ring: #e07a3e;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #17120e;
+  --surface: #221a14;
+  --surface-2: #2d241c;
+  --ink: #f5ecdf;
+  --muted: #bba893;
+  --border: #3b3026;
+  --primary: #f0894f;
+  --primary-ink: #1b120b;
+  --primary-soft: #4a2716;
+  --herb: #8fc584;
+  --herb-soft: #24361f;
+  --danger: #f97066;
+  --ring: #f0894f;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-primary-soft: var(--primary-soft);
+  --color-herb: var(--herb);
+  --color-herb-soft: var(--herb-soft);
+  --color-danger: var(--danger);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), ui-serif, Georgia, serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
