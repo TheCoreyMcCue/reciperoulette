@@ -22,7 +22,9 @@
 /* Class-based dark mode that also follows the OS by default (see the theme script in app/layout.tsx). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
+/* `.light` lets a subtree force the light palette (used by /styleguide to show both modes side by side). */
+:root,
+.light {
   /* Paper */
   --paper: #f6efe3; /* app background, warm parchment */
   --card: #fbf7ef; /* index-card stock */
