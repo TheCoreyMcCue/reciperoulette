@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Nunito } from "next/font/google";
+import { Caveat, Fraunces, Nunito_Sans } from "next/font/google";
 import { ServiceWorkerRegister } from "@/components/sw-register";
+import { themeColors } from "@/lib/theme";
 import "./globals.css";
 
-const heading = Fraunces({ variable: "--font-heading", subsets: ["latin"] });
-const body = Nunito({ variable: "--font-body", subsets: ["latin"] });
+// Fraunces with its soft/wonk/optical-size axes; settings live in globals.css (.font-display).
+const heading = Fraunces({ variable: "--font-heading", subsets: ["latin"], axes: ["SOFT", "WONK", "opsz"] });
+const body = Nunito_Sans({ variable: "--font-body", subsets: ["latin"] });
+// Handwritten accent: small personal touches only, never content people read while cooking.
+const hand = Caveat({ variable: "--font-hand", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: { default: "reciperoulette", template: "%s · reciperoulette" },
@@ -25,8 +29,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbf6ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#17120e" },
+    { media: "(prefers-color-scheme: light)", color: themeColors.light },
+    { media: "(prefers-color-scheme: dark)", color: themeColors.dark },
   ],
 };
 
@@ -40,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${heading.variable} ${body.variable} h-full antialiased`}
+      className={`${heading.variable} ${body.variable} ${hand.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

@@ -1,58 +1,146 @@
 @import "tailwindcss";
 
-/* Class-based dark mode that also follows the OS by default (see ThemeScript). */
+/*
+ * reciperoulette theme: "heirloom recipe box".
+ *
+ * This file is the single source of truth for colours, fonts, shadows, radii,
+ * textures and motion. Components only use the Tailwind names exposed in
+ * `@theme` below (bg-card, text-ink, border-line, shadow-card, rounded-card…),
+ * never raw colour values. The only other place colours appear is
+ * lib/theme.ts, which mirrors `--paper` for the PWA manifest / theme-color
+ * meta tags (those can't read CSS variables).
+ *
+ * Contrast (WCAG AA, normal text ≥ 4.5:1), light / dark:
+ *   ink on paper 13.3 / 14.5     muted on paper 5.4 / 8.0    muted on kraft 5.0 / 6.5
+ *   paprika on paper 4.9 / 6.3   on-paprika on paprika 5.6 / 6.3
+ *   sage-ink on paper 6.3 / 7+   sage-ink on sage-soft 5.9 / 7.2
+ *   danger on card 7.0 / 7.2     ink on mustard 7.7
+ * Rules of thumb: paprika *text* only on paper/card (not kraft or paprika-soft).
+ * sage & mustard are fills, icons, borders and decoration, never small text.
+ */
+
+/* Class-based dark mode that also follows the OS by default (see the theme script in app/layout.tsx). */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --bg: #fbf6ee;
-  --surface: #ffffff;
-  --surface-2: #f4ebdd;
-  --ink: #2a1f16;
-  --muted: #6b5a4a;
-  --border: #e6d8c3;
-  --primary: #b8461b; /* paprika, 5.6:1 on white */
-  --primary-ink: #ffffff;
-  --primary-soft: #fbe3d4;
-  --herb: #3f6b3a; /* basil */
-  --herb-soft: #e1eedb;
-  --danger: #b42318;
-  --ring: #e07a3e;
+  /* Paper */
+  --paper: #f6efe3; /* app background, warm parchment */
+  --card: #fbf7ef; /* index-card stock */
+  --kraft: #efe6d6; /* tinted panels, chips, wells */
+  --line: #e4d8c4; /* warm tan borders */
+  --rule: rgb(188 208 221 / 0.55); /* faint dusty-blue ruled lines (decorative only) */
+
+  /* Ink */
+  --ink: #2b2420; /* old ink, never pure black */
+  --muted: #6f5e50; /* faded sepia, darkened from #7a6a5c to clear AA on paper and kraft */
+
+  /* Accents */
+  --paprika: #b83f2b; /* the red top line on an index card */
+  --on-paprika: #ffffff;
+  --paprika-soft: #f5ddd3;
+  --sage: #7c8b5e; /* fills, icons, borders only */
+  --sage-ink: #4f5c38; /* sage for text */
+  --sage-soft: #e6ead8;
+  --mustard: #e3b04b; /* rare highlight; dark text only */
+  --mustard-soft: #f6e7c1;
+  --danger: #9a2b3a; /* oxblood, distinct from paprika */
+  --danger-soft: #f6dfe0;
+
+  /* Depth: warm, brown-tinted */
+  --shadow-color: 60 40 25;
+  --sh-card: 0 1px 2px rgb(var(--shadow-color) / 0.08), 0 2px 8px rgb(var(--shadow-color) / 0.06);
+  --sh-lift: 0 4px 10px rgb(var(--shadow-color) / 0.1), 0 12px 28px rgb(var(--shadow-color) / 0.12);
+  --sh-press: inset 0 1px 2px rgb(var(--shadow-color) / 0.18);
+
+  /* Textures (CSS / inline SVG only) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .24 0 0 0 0 .16 0 0 0 0 .1 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --rule-step: 2rem; /* ruled-line spacing; text over `.ruled` must use this line height */
+
   color-scheme: light;
 }
 
+/* "Kitchen at night": deep cocoa, cream ink, accents softened. */
 .dark {
-  --bg: #17120e;
-  --surface: #221a14;
-  --surface-2: #2d241c;
-  --ink: #f5ecdf;
-  --muted: #bba893;
-  --border: #3b3026;
-  --primary: #f0894f;
-  --primary-ink: #1b120b;
-  --primary-soft: #4a2716;
-  --herb: #8fc584;
-  --herb-soft: #24361f;
-  --danger: #f97066;
-  --ring: #f0894f;
+  --paper: #1f1915;
+  --card: #2a221c;
+  --kraft: #342a22;
+  --line: #43372d;
+  --rule: rgb(188 208 221 / 0.07);
+
+  --ink: #f3e9da;
+  --muted: #bfae99;
+
+  --paprika: #e4806a;
+  --on-paprika: #1f1915; /* white on soft paprika fails AA, cocoa passes (6.3) */
+  --paprika-soft: #4a2a20;
+  --sage: #a9b98c;
+  --sage-ink: #b9c79c;
+  --sage-soft: #2f3424;
+  --mustard: #e6bf6e;
+  --mustard-soft: #3d3220;
+  --danger: #f2998e;
+  --danger-soft: #3f2224;
+
+  --shadow-color: 0 0 0;
+  --sh-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.2);
+  --sh-lift: 0 4px 10px rgb(0 0 0 / 0.3), 0 12px 28px rgb(0 0 0 / 0.35);
+  --sh-press: inset 0 1px 2px rgb(0 0 0 / 0.4);
+
+  --grain: none; /* paper grain off at night */
+
   color-scheme: dark;
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-kraft: var(--kraft);
+  --color-line: var(--line);
+  --color-rule: var(--rule);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-border: var(--border);
-  --color-primary: var(--primary);
-  --color-primary-ink: var(--primary-ink);
-  --color-primary-soft: var(--primary-soft);
-  --color-herb: var(--herb);
-  --color-herb-soft: var(--herb-soft);
+  --color-paprika: var(--paprika);
+  --color-on-paprika: var(--on-paprika);
+  --color-paprika-soft: var(--paprika-soft);
+  --color-sage: var(--sage);
+  --color-sage-ink: var(--sage-ink);
+  --color-sage-soft: var(--sage-soft);
+  --color-mustard: var(--mustard);
+  --color-mustard-soft: var(--mustard-soft);
   --color-danger: var(--danger);
-  --color-ring: var(--ring);
+  --color-danger-soft: var(--danger-soft);
+
+  /* Temporary aliases for the old token names, removed once every screen is migrated. */
+  --color-bg: var(--paper);
+  --color-surface: var(--card);
+  --color-surface-2: var(--kraft);
+  --color-border: var(--line);
+  --color-primary: var(--paprika);
+  --color-primary-ink: var(--on-paprika);
+  --color-primary-soft: var(--paprika-soft);
+  --color-herb: var(--sage-ink);
+  --color-herb-soft: var(--sage-soft);
+  --color-ring: var(--paprika);
+
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-heading), ui-serif, Georgia, serif;
+  --font-script: var(--font-hand), "Bradley Hand", cursive;
+
+  --shadow-card: var(--sh-card);
+  --shadow-lift: var(--sh-lift);
+  --shadow-press: var(--sh-press);
+}
+
+@theme {
+  --radius-card: 0.5rem; /* 8px, index-card corners */
+  --radius-control: 0.625rem; /* 10px, buttons and inputs */
+
+  --ease-out-soft: cubic-bezier(0.22, 0.8, 0.3, 1);
+
+  --animate-rise-in: rise-in 220ms var(--ease-out-soft) both;
+  --animate-fade-in: fade-in 200ms ease-out both;
+  --animate-pull-card: pull-card 420ms var(--ease-out-soft) both;
+  --animate-set-aside: set-aside 380ms ease-in both;
 }
 
 html {
@@ -60,13 +148,55 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background-color: var(--paper);
+  background-image: var(--grain);
   color: var(--ink);
 }
 
+/* Fraunces: soft, rounded optical settings. */
+.font-display {
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+}
+
 :focus-visible {
-  outline: 3px solid var(--ring);
+  outline: 3px solid var(--paprika);
   outline-offset: 2px;
+}
+
+::selection {
+  background: var(--paprika-soft);
+  color: var(--ink);
+}
+
+/* Faint ruled lines like an index card. Text on top must use `leading-[var(--rule-step)]`
+   and the element's padding-top should be a multiple of the step, so lines sit under text. */
+@utility ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--rule-step) - 1px),
+    var(--rule) calc(var(--rule-step) - 1px),
+    var(--rule) var(--rule-step)
+  );
+  background-position: 0 var(--rule-offset, 0);
+}
+
+/* The red line under an index card's title. */
+@utility title-rule {
+  border-bottom: 2px solid var(--paprika);
+}
+
+/* Lift-on-hover only for real pointers; touch devices never get stuck tilted cards. */
+@utility card-lift {
+  transition:
+    transform 200ms var(--ease-out-soft),
+    box-shadow 200ms var(--ease-out-soft);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px) rotate(-0.5deg);
+      box-shadow: var(--sh-lift);
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -74,10 +204,56 @@ body {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
 }
 
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The drawn card rises out of the tin. */
+@keyframes pull-card {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* "Not this week": the card is slid off to the side. */
+@keyframes set-aside {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(60%) rotate(6deg);
+  }
+}
+
+/* Kept for existing call sites until the roulette is restyled. */
 @keyframes pop {
   from {
     opacity: 0;

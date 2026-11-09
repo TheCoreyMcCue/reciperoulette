@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { themeColors } from "@/lib/theme";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -10,8 +11,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#fbf6ee",
-    theme_color: "#b8461b",
+    background_color: themeColors.light,
+    theme_color: themeColors.light,
     categories: ["food", "lifestyle"],
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
