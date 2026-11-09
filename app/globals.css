@@ -205,7 +205,7 @@ body {
 /* Reduced motion: no transitions or animations, except progress indicators marked
    data-motion="essential" (a slowed spinner), so it stays obvious the app is working. */
 @media (prefers-reduced-motion: reduce) {
-  *:not([data-motion="essential"]),
+  *:not([data-motion="essential"], [data-motion="fade"]),
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
@@ -214,6 +214,10 @@ body {
   }
   [data-motion="essential"] {
     animation-duration: 2s !important;
+  }
+  /* Elements that should still appear gently: replace their motion with a plain fade. */
+  [data-motion="fade"] {
+    animation: fade-in 200ms ease-out both !important;
   }
 }
 
