@@ -155,7 +155,7 @@ export function ImportFlow({
         {tab === "url" && <UrlImport initialUrl={initialUrl} onSubmit={(r) => submit(r, "Fetching the page…")} translate={translate} />}
       </div>
 
-      <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl px-1 py-2">
+      <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-card px-1 py-2">
         <input type="checkbox" className="mt-0.5 h-6 w-6 shrink-0 accent-paprika" checked={translate} onChange={(e) => setTranslate(e.target.checked)} />
         <span>
           <span className="block font-semibold">Translate to English</span>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { buttonClass } from "@/components/ui/button";
+import { cardClass } from "@/components/ui/card";
+import { cn } from "@/components/ui/cn";
 import { PageLoading } from "@/components/ui/spinner";
 import { describeInvite } from "@/lib/auth/accounts";
 import { InviteCodeSchema } from "@/lib/auth/schemas";
@@ -25,8 +27,8 @@ async function Join({ params }: Pick<PageProps<"/join/[code]">, "params">) {
 
   if (!invite) {
     return (
-      <div className="space-y-4 rounded-3xl border border-border bg-surface p-6">
-        <h1 className="font-display text-2xl font-semibold">This invite has expired</h1>
+      <div className={cn(cardClass, "space-y-4 p-6 sm:p-8")}>
+        <h1 className="title-rule pb-2 font-display text-3xl font-semibold">This invite has expired</h1>
         <p className="text-muted">
           Invite links work once and last 7 days. Ask whoever sent it to create a new one from their Settings page.
         </p>
@@ -39,8 +41,8 @@ async function Join({ params }: Pick<PageProps<"/join/[code]">, "params">) {
 
   if (await getCurrentSession()) {
     return (
-      <div className="space-y-4 rounded-3xl border border-border bg-surface p-6">
-        <h1 className="font-display text-2xl font-semibold">You&apos;re already signed in</h1>
+      <div className={cn(cardClass, "space-y-4 p-6 sm:p-8")}>
+        <h1 className="title-rule pb-2 font-display text-3xl font-semibold">You&apos;re already signed in</h1>
         <p className="text-muted">
           This invite is for someone new joining <strong>{invite.householdName}</strong>. Send the link to them, or sign
           out first if you want to create a separate account.
