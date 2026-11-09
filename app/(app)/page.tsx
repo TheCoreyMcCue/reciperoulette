@@ -17,7 +17,7 @@ export default function HomePage() {
         </ButtonLink>
       </div>
       <ButtonLink
-        href="/roulette"
+        href="/roulette?spin=1"
         size="lg"
         className="w-full justify-between rounded-3xl py-4 text-left shadow-md sm:w-auto sm:min-w-80"
       >
