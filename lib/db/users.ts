@@ -133,7 +133,9 @@ export async function listMembers(householdId: string): Promise<Member[]> {
       ExpressionAttributeValues: { ":pk": householdPk(householdId), ":sk": "MEMBER#" },
     }),
   );
-  return (res.Items ?? []).map((i) => stripKeys(i) as Member);
+  return (res.Items ?? [])
+    .map((i) => stripKeys(i) as Member)
+    .sort((a, b) => Number(b.role === "owner") - Number(a.role === "owner") || a.joinedAt.localeCompare(b.joinedAt));
 }
 
 export async function getMember(householdId: string, userId: string): Promise<Member | null> {

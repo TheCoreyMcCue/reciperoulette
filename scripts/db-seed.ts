@@ -211,7 +211,7 @@ async function ensureUser(email: string, name: string, owner: boolean): Promise<
   return user;
 }
 
-async function main() {
+export async function seedDemo() {
   console.log("→ Seeding demo household");
   const owner = await ensureUser("demo@example.com", "Sam", true);
   await ensureUser("partner@example.com", "Alex", false);
@@ -234,7 +234,10 @@ async function main() {
   console.log(`Done. Log in as demo@example.com / ${PASSWORD}`);
 }
 
-main().catch((err) => {
-  console.error("✗ db:seed failed:", err instanceof Error ? `${err.name}: ${err.message}` : err);
-  process.exit(1);
-});
+// Run when executed directly (pnpm db:seed), not when imported by dev/memory-db.ts.
+if (process.argv[1]?.endsWith("db-seed.ts")) {
+  seedDemo().catch((err) => {
+    console.error("✗ db:seed failed:", err instanceof Error ? `${err.name}: ${err.message}` : err);
+    process.exit(1);
+  });
+}
