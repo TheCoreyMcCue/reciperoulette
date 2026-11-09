@@ -115,13 +115,15 @@ function measureOf(quantity: string, unit: string, category: Ingredient["categor
   return {};
 }
 
-function ingredientFlags(i: Ingredient, rawName: string, rawUnit: string, unitParsed: boolean): Flag[] {
+function ingredientFlags(i: Ingredient, rawName: string, rawUnit: string, unitParsed: boolean, recipeTitle: string): Flag[] {
   const flags: Flag[] = [];
   const line = [i.quantity, i.unit, rawName].filter(Boolean).join(" ");
   if (!unitParsed) flags.push({ kind: "unit", message: `Unit "${rawUnit}" wasn't recognised: "${line}"` });
   if (UNIT_WORDS.test(i.item)) flags.push({ kind: "name", message: `Item name contains a unit: "${line}"` });
   const words = rawName.split(/[\s,;-]+/).filter(Boolean);
-  const garbled = words.filter((w) => /([a-z])\1\1/i.test(w) || /[a-z]{3,}dd$/i.test(w) || (w.length <= 2 && !SHORT_OK.has(w.toLowerCase()) && !/^\d/.test(w)));
+  const garbled = words.filter(
+    (w) => /([a-z])\1\1/i.test(w) || /[a-z]{3,}dd$/i.test(w) || (/^[a-z]{1,2}$/i.test(w) && !SHORT_OK.has(w.toLowerCase())),
+  );
   if (garbled.length) flags.push({ kind: "garbled", message: `Name looks garbled (${garbled.map((w) => `"${w}"`).join(", ")}): "${line}"` });
   if (rawName.length > 60 || words.length > 8) flags.push({ kind: "name", message: `A lot of detail in the name (${rawName.length} chars): "${line}"` });
   if (/\s(and|&|or|plus)\s|\//i.test(i.item) && !/^salt\s*(and|&)\s*pepper$/i.test(i.item)) {
@@ -130,7 +132,7 @@ function ingredientFlags(i: Ingredient, rawName: string, rawUnit: string, unitPa
 
   const m = measureOf(i.quantity, i.unit, i.category);
   if (/\boil\b/i.test(i.item) && m.ml != null && m.ml >= 120) flags.push({ kind: "amount", message: `Lots of oil (≈${Math.round(m.ml)} ml): "${line}"` });
-  if (/\b(salt|baking soda|baking powder|cloves|cinnamon|nutmeg|cayenne|chil[il] (powder|flakes))\b/i.test(i.item) && m.ml != null && m.ml >= 45 && !/rub|brine/i.test(line)) {
+  if (/\b(salt|baking soda|baking powder|cloves|cinnamon|nutmeg|cayenne|chil[il] (powder|flakes))\b/i.test(i.item) && m.ml != null && m.ml >= 45 && !/\b(rub|brine|seasoning|spice mix|blend)\b/i.test(`${line} ${recipeTitle}`)) {
     flags.push({ kind: "amount", message: `Lots of a strong seasoning (≈${Math.round(m.ml)} ml): "${line}"` });
   }
   if (/^(pinch|pinches|dash|dashes)$/i.test(i.unit) && !SEASONING.test(i.item)) flags.push({ kind: "amount", message: `A "${i.unit}" of something that isn't a seasoning: "${line}"` });
@@ -213,7 +215,7 @@ export function mapLegacyRecord(rec: LegacyRecord & { _legacyId: string; _idWasM
       gramsPerCup: null,
     });
     if (ing.category === null) unclassified.push(ing.item);
-    flags.push(...ingredientFlags(ing, rawName, rawUnit, parsed));
+    flags.push(...ingredientFlags(ing, rawName, rawUnit, parsed, title));
     ingredients.push(ing);
   }
 
@@ -224,7 +226,8 @@ export function mapLegacyRecord(rec: LegacyRecord & { _legacyId: string; _idWasM
   const listed = ingredients.map((i) => `${i.item} ${i.note}`.toLowerCase()).join(" | ");
   const prose = `${steps.join(" ")} ${description}`.toLowerCase();
   for (const spice of SPICE_MENTIONS) {
-    const re = new RegExp(`\\b${spice}\\b(?!\\s+(of\\s+)?garlic)`, "i");
+    // "cloves of garlic" / "garlic cloves" are about garlic, not the spice.
+    const re = new RegExp(`(?<!garlic\\s)\\b${spice}\\b(?!\\s+(of\\s+)?garlic)`, "i");
     if (re.test(prose) && !listed.includes(spice.replace(/s$/, ""))) {
       flags.push({ kind: "missing", message: `Steps or description mention "${spice}" but it isn't in the ingredients` });
     }

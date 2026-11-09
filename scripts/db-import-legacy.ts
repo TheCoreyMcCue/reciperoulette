@@ -29,7 +29,7 @@ import { RecipeInputSchema } from "@/lib/recipes/schema";
 const { values } = parseArgs({
   options: {
     email: { type: "string" },
-    file: { type: "string", default: "scripts/data/legacy-recipes.txt" },
+    file: { type: "string", default: existsSync("scripts/data/legacy-recipes.json") ? "scripts/data/legacy-recipes.json" : "scripts/data/legacy-recipes.txt" },
     commit: { type: "boolean", default: false },
     overwrite: { type: "boolean", default: false },
     "no-ai": { type: "boolean", default: false },

@@ -163,3 +163,24 @@ describe("possible duplicates and report", () => {
     expect(out).toContain("Possible duplicates:");
   });
 });
+
+describe("false-positive guards", () => {
+  const rec = (title: string, ingredients: { amount: string; unit: string; name: string }[], steps: string[], description = "") =>
+    mapLegacyRecord({ title, description, ingredients, steps, _legacyId: "x", _idWasMissing: false }, new Date());
+  const three = ["One.", "Two.", "Three."];
+
+  it("doesn't call fractions garbled", () => {
+    const m = rec("Bolognese", [{ amount: "1", unit: "whole", name: 'broccoli, chopped into ½" pieces' }, { amount: "1", unit: "", name: "onion" }, { amount: "1", unit: "", name: "carrot" }], three);
+    expect(m.flags.filter((f) => f.kind === "garbled")).toEqual([]);
+  });
+
+  it("doesn't confuse garlic cloves with the spice", () => {
+    const m = rec("Chicken", [{ amount: "1", unit: "whole", name: "garlic head" }, { amount: "1", unit: "", name: "onion" }, { amount: "1", unit: "", name: "carrot" }], ["Squeeze out the roasted garlic cloves.", "Two.", "Three."]);
+    expect(m.flags.filter((f) => f.kind === "missing")).toEqual([]);
+  });
+
+  it("allows big seasoning amounts in rubs", () => {
+    const m = rec("Jeff’s Spice Rub", [{ amount: "1.25", unit: "cup", name: "salt" }, { amount: "1", unit: "cup", name: "paprika" }, { amount: "1", unit: "cup", name: "sugar" }], three);
+    expect(m.flags.filter((f) => f.kind === "amount")).toEqual([]);
+  });
+});
