@@ -103,8 +103,8 @@ export function PhotoImport({ onSubmit, translate }: { onSubmit: (r: ImportReque
             void addFiles([...e.dataTransfer.files]);
           }}
           className={cn(
-            "flex flex-col items-center gap-4 rounded-3xl border-2 border-dashed p-6 text-center transition",
-            dragging ? "border-primary bg-primary-soft" : "border-border",
+            "flex flex-col items-center gap-4 rounded-card border-2 border-dashed p-6 text-center transition-colors duration-200",
+            dragging ? "border-paprika bg-paprika-soft" : "border-line",
           )}
         >
           <p className="text-muted">
@@ -124,23 +124,23 @@ export function PhotoImport({ onSubmit, translate }: { onSubmit: (r: ImportReque
         <>
           <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Photos, in reading order">
             {images.map((img, i) => (
-              <li key={img.id} className="relative overflow-hidden rounded-2xl border border-border bg-surface-2">
-                <img src={img.previewUrl} alt={`Photo ${i + 1}`} className="aspect-[3/4] w-full object-cover" />
-                <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-bold text-white">{i + 1}</span>
+              <li key={img.id} className="relative overflow-hidden rounded-[4px] border border-line bg-card p-1 shadow-card">
+                <img src={img.previewUrl} alt={`Photo ${i + 1}`} className="aspect-[3/4] w-full rounded-[2px] object-cover" />
+                <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2 py-0.5 text-xs font-bold text-paper tabular-nums">{i + 1}</span>
                 <button
                   type="button"
                   onClick={() => remove(img.id)}
                   aria-label={`Remove photo ${i + 1}`}
-                  className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-ink/80 text-paper"
                 >
                   <XIcon width={18} height={18} />
                 </button>
                 {images.length > 1 && (
                   <div className="absolute inset-x-2 bottom-2 flex justify-between">
-                    <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move photo ${i + 1} earlier`} className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white disabled:opacity-0">
+                    <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move photo ${i + 1} earlier`} className="flex h-11 w-11 items-center justify-center rounded-full bg-ink/80 text-paper disabled:opacity-0">
                       <ChevronLeftIcon width={18} height={18} />
                     </button>
-                    <button type="button" disabled={i === images.length - 1} onClick={() => move(i, 1)} aria-label={`Move photo ${i + 1} later`} className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white disabled:opacity-0">
+                    <button type="button" disabled={i === images.length - 1} onClick={() => move(i, 1)} aria-label={`Move photo ${i + 1} later`} className="flex h-11 w-11 items-center justify-center rounded-full bg-ink/80 text-paper disabled:opacity-0">
                       <ChevronRightIcon width={18} height={18} />
                     </button>
                   </div>
@@ -148,7 +148,7 @@ export function PhotoImport({ onSubmit, translate }: { onSubmit: (r: ImportReque
               </li>
             ))}
             {busy > 0 && (
-              <li className="flex aspect-[3/4] items-center justify-center rounded-2xl border border-dashed border-border" role="status">
+              <li className="flex aspect-[3/4] items-center justify-center rounded-[4px] border border-dashed border-line" role="status">
                 <Spinner />
                 <span className="sr-only">Preparing photo…</span>
               </li>
@@ -158,7 +158,7 @@ export function PhotoImport({ onSubmit, translate }: { onSubmit: (r: ImportReque
                 <button
                   type="button"
                   onClick={() => pickRef.current?.click()}
-                  className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border text-sm font-semibold text-muted hover:bg-surface-2"
+                  className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 rounded-[4px] border-2 border-dashed border-line text-sm font-bold text-muted transition-colors hover:bg-kraft hover:text-ink"
                 >
                   <PlusIcon /> Add another
                 </button>

@@ -12,6 +12,9 @@ export const inputClass =
   "focus:border-paprika/60 focus:border-b-paprika focus:outline-none focus:ring-3 focus:ring-paprika/20 " +
   "aria-invalid:border-danger/60 aria-invalid:border-b-danger";
 
+/** Textareas get ruled lines that match their line height and scroll with the text. */
+export const linedTextareaClass = "ruled bg-local py-2 leading-8 [--rule-offset:0.5rem] [--rule-step:2rem]";
+
 export function Label({ className, ...props }: ComponentProps<"label">) {
   return <label className={cn("block text-sm font-bold text-ink", className)} {...props} />;
 }

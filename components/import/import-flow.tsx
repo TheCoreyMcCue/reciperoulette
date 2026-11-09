@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type ComponentType, type SVGProps } from "
 import { CameraIcon, EditIcon, LinkIcon, TextIcon } from "@/components/icons";
 import { RecipeForm } from "@/components/recipes/recipe-form";
 import { Button, buttonClass } from "@/components/ui/button";
+import { cardClass } from "@/components/ui/card";
 import { cn } from "@/components/ui/cn";
 import { Alert } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
@@ -61,12 +62,17 @@ export function ImportFlow({
 
   if (state.stage === "working") {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-5 text-center" role="status" aria-live="polite">
-        <div className="relative">
-          <div className="h-20 w-20 rounded-full bg-primary-soft" />
-          <Spinner className="absolute inset-0 m-auto h-10 w-10 text-primary" />
+      <div
+        className={cn(cardClass, "flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 py-10 text-center")}
+        role="status"
+        aria-live="polite"
+      >
+        <Spinner className="h-10 w-10 text-paprika" />
+        {/* Handwritten progress line, plus a real progress indicator so it's obvious we're working. */}
+        <p className="font-script text-3xl leading-tight text-ink">{state.label}</p>
+        <div className="h-1.5 w-48 overflow-hidden rounded-full bg-kraft" aria-hidden="true">
+          <div data-motion="essential" className="h-full w-2/5 animate-progress rounded-full bg-paprika" />
         </div>
-        <p className="font-display text-2xl font-semibold">{state.label}</p>
         <p className="max-w-xs text-sm text-muted">This usually takes 5 to 15 seconds.</p>
         <Button variant="ghost" onClick={startOver}>
           Cancel
@@ -98,7 +104,7 @@ export function ImportFlow({
                   </ul>
                 )}
               </Alert>
-              <button type="button" onClick={startOver} className="text-sm font-semibold text-primary underline-offset-2 hover:underline">
+              <button type="button" onClick={startOver} className="inline-flex min-h-11 items-center text-sm font-bold text-paprika underline-offset-4 hover:underline">
                 ← Start over
               </button>
             </div>
@@ -122,7 +128,7 @@ export function ImportFlow({
 
   return (
     <div className="space-y-5">
-      <div role="tablist" aria-label="Import method" className="grid grid-cols-3 gap-2">
+      <div role="tablist" aria-label="Import method" className="grid grid-cols-3 gap-2.5 sm:gap-3">
         {TABS.map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -132,24 +138,25 @@ export function ImportFlow({
             aria-controls={`panel-${id}`}
             onClick={() => setTab(id)}
             className={cn(
-              "flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-3xl border text-sm font-bold transition",
-              tab === id ? "border-primary bg-primary text-primary-ink shadow-md" : "border-border bg-surface hover:bg-surface-2",
+              "card-lift flex min-h-24 flex-col items-center justify-center gap-2 rounded-card border bg-card text-base font-bold",
+              "border-t-4 transition-colors duration-200 ease-out",
+              tab === id ? "border-paprika text-ink shadow-card" : "border-line border-t-line text-muted hover:text-ink",
             )}
           >
-            <Icon width={28} height={28} />
+            <Icon width={28} height={28} className={tab === id ? "text-paprika" : undefined} />
             {label}
           </button>
         ))}
       </div>
 
-      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="rounded-3xl border border-border bg-surface p-4 sm:p-5">
+      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className={cn(cardClass, "p-4 sm:p-6")}>
         {tab === "photo" && <PhotoImport onSubmit={(r) => submit(r)} translate={translate} />}
         {tab === "text" && <TextImport initialText={initialText} onSubmit={(r) => submit(r)} translate={translate} />}
         {tab === "url" && <UrlImport initialUrl={initialUrl} onSubmit={(r) => submit(r, "Fetching the page…")} translate={translate} />}
       </div>
 
       <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl px-1 py-2">
-        <input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary)]" checked={translate} onChange={(e) => setTranslate(e.target.checked)} />
+        <input type="checkbox" className="mt-0.5 h-6 w-6 shrink-0 accent-paprika" checked={translate} onChange={(e) => setTranslate(e.target.checked)} />
         <span>
           <span className="block font-semibold">Translate to English</span>
           <span className="block text-sm text-muted">Otherwise we keep the recipe in its original language.</span>
@@ -177,8 +184,8 @@ function Failure({
   onSwitch: (t: ImportTab) => void;
 }) {
   return (
-    <div className="space-y-4 rounded-3xl border border-border bg-surface p-5">
-      <h2 className="font-display text-2xl font-semibold">{limited ? "That's enough for today" : "Hmm, that didn't work"}</h2>
+    <div className={cn(cardClass, "space-y-4 p-5 sm:p-6")}>
+      <h2 className="title-rule pb-2 font-display text-2xl font-semibold">{limited ? "That's enough for today" : "Hmm, that didn't work"}</h2>
       <p>{message}</p>
       {suggestion === "photo" && (
         <Alert tone="info">

@@ -5,7 +5,9 @@ import { useId, useMemo, useState, useTransition, type ReactNode } from "react";
 import { saveRecipeAction } from "@/app/(app)/recipes/actions";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Alert, inputClass, Label, TextField } from "@/components/ui/field";
+import { Card as PaperCard, CardTitle } from "@/components/ui/card";
+import { Alert, inputClass, Label, linedTextareaClass, TextField } from "@/components/ui/field";
+import { DraftStamp, isDraft } from "@/components/ui/tag";
 import { formatIngredient, groupBy, parseIngredientLine } from "@/lib/recipes/ingredients";
 import type { Ingredient, RecipeInput, SourceType } from "@/lib/recipes/schema";
 
@@ -136,6 +138,7 @@ export function RecipeForm({ initial, recipeId, rawSourceText, banner, submitLab
   return (
     <form onSubmit={submit} className="space-y-6" noValidate>
       {banner}
+      {isDraft(initial.tags) && <DraftStamp />}
       {error && (
         <Alert>
           <p className="font-semibold">{error}</p>
@@ -189,10 +192,10 @@ export function RecipeForm({ initial, recipeId, rawSourceText, banner, submitLab
         </div>
       </Card>
 
-      <div className="sticky bottom-20 z-30 -mx-4 space-y-3 border-t border-border bg-bg/95 px-4 py-3 backdrop-blur md:bottom-0">
+      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 -mx-4 space-y-3 border-t border-line bg-paper px-4 py-3 shadow-up md:bottom-0">
         {!recipeId && (
-          <label className="flex min-h-10 items-center gap-3 font-semibold">
-            <input type="checkbox" className="h-5 w-5 accent-[var(--primary)]" checked={addToRotation} onChange={(e) => setAddToRotation(e.target.checked)} />
+          <label className="flex min-h-11 items-center gap-3 font-bold">
+            <input type="checkbox" className="h-6 w-6 accent-paprika" checked={addToRotation} onChange={(e) => setAddToRotation(e.target.checked)} />
             Add to our rotation
           </label>
         )}
@@ -212,14 +215,14 @@ export function RecipeForm({ initial, recipeId, rawSourceText, banner, submitLab
 }
 
 function Card({ children }: { children: ReactNode }) {
-  return <section className="space-y-4 rounded-3xl border border-border bg-surface p-4 sm:p-5">{children}</section>;
+  return <PaperCard className="space-y-4 p-4 sm:p-6">{children}</PaperCard>;
 }
 
 function SectionHeader({ title, hint }: { title: string; hint?: string }) {
   return (
     <div>
-      <h2 className="font-display text-xl font-semibold">{title}</h2>
-      {hint && <p className="text-sm text-muted">{hint}</p>}
+      <CardTitle>{title}</CardTitle>
+      {hint && <p className="mt-1.5 text-sm text-muted">{hint}</p>}
     </div>
   );
 }
@@ -260,7 +263,7 @@ function TextArea({
         rows={Math.max(rows, value.split("\n").length + 1)}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className={`${inputClass} py-3 leading-relaxed`}
+        className={`${inputClass} ${linedTextareaClass}`}
       />
     </div>
   );

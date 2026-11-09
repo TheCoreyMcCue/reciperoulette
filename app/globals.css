@@ -144,6 +144,7 @@
   --animate-fade-in: fade-in 200ms ease-out both;
   --animate-pull-card: pull-card 420ms var(--ease-out-soft) both;
   --animate-set-aside: set-aside 380ms ease-in both;
+  --animate-progress: progress 1.4s ease-in-out infinite;
 }
 
 html {
@@ -262,6 +263,16 @@ body {
   to {
     opacity: 0;
     transform: translateX(60%) rotate(6deg);
+  }
+}
+
+/* Indeterminate progress bar (marked data-motion="essential" so it keeps moving, slowed, under reduced motion). */
+@keyframes progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
   }
 }
 
