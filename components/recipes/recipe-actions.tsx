@@ -62,7 +62,7 @@ export function RecipeActions({ recipe }: { recipe: Recipe }) {
       </Button>
       <div className="grid grid-cols-2 gap-3">
         <Button
-          variant={optimistic.inRotation ? "herb" : "secondary"}
+          variant={optimistic.inRotation ? "sage" : "secondary"}
           onClick={toggleRotation}
           aria-pressed={optimistic.inRotation}
         >

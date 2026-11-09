@@ -1,12 +1,28 @@
 import { useId, type ComponentProps, type ReactNode } from "react";
+import { AlertIcon } from "@/components/icons";
 import { cn } from "./cn";
 
+/**
+ * Text inputs look like writing on a ruled line: a soft border with a firmer
+ * baseline, which turns paprika on focus.
+ */
 export const inputClass =
-  "w-full min-h-12 rounded-2xl border border-border bg-surface px-4 text-base text-ink " +
-  "placeholder:text-muted/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full min-h-12 rounded-control border border-line border-b-2 border-b-muted/45 bg-card px-4 text-base text-ink " +
+  "transition-colors duration-200 ease-out placeholder:text-muted " +
+  "focus:border-paprika/60 focus:border-b-paprika focus:outline-none focus:ring-3 focus:ring-paprika/20 " +
+  "aria-invalid:border-danger/60 aria-invalid:border-b-danger";
 
 export function Label({ className, ...props }: ComponentProps<"label">) {
-  return <label className={cn("block text-sm font-semibold text-ink", className)} {...props} />;
+  return <label className={cn("block text-sm font-bold text-ink", className)} {...props} />;
+}
+
+export function FieldError({ id, children }: { id?: string; children: ReactNode }) {
+  return (
+    <p id={id} className="flex items-start gap-1.5 text-sm font-semibold text-danger">
+      <AlertIcon width={16} height={16} className="mt-0.5 shrink-0" />
+      <span>{children}</span>
+    </p>
+  );
 }
 
 export function TextField({
@@ -25,15 +41,13 @@ export function TextField({
       <Label htmlFor={inputId}>{label}</Label>
       <input
         id={inputId}
-        className={cn(inputClass, error && "border-danger")}
+        className={inputClass}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         {...props}
       />
       {error ? (
-        <p id={`${inputId}-err`} className="text-sm text-danger">
-          {error}
-        </p>
+        <FieldError id={`${inputId}-err`}>{error}</FieldError>
       ) : hint ? (
         <p id={`${inputId}-hint`} className="text-sm text-muted">
           {hint}
@@ -43,6 +57,7 @@ export function TextField({
   );
 }
 
+/** Ink text on a soft tint with a coloured edge, so every tone stays readable in both modes. */
 export function Alert({
   tone = "error",
   children,
@@ -53,12 +68,15 @@ export function Alert({
   className?: string;
 }) {
   const tones = {
-    error: "border-danger/40 bg-danger/10 text-danger",
-    info: "border-border bg-surface-2 text-ink",
-    success: "border-herb/40 bg-herb-soft text-herb",
+    error: "border-danger bg-danger-soft",
+    info: "border-mustard bg-kraft",
+    success: "border-sage bg-sage-soft",
   };
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={cn("rounded-2xl border px-4 py-3 text-sm", tones[tone], className)}>
+    <div
+      role={tone === "error" ? "alert" : "status"}
+      className={cn("rounded-card border-l-4 px-4 py-3 text-base text-ink", tones[tone], className)}
+    >
       {children}
     </div>
   );

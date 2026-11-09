@@ -230,13 +230,13 @@ export function CookMode({ recipe, onClose, onFinished }: { recipe: Recipe; onCl
                   Next <ChevronRightIcon />
                 </Button>
               ) : (
-                <Button variant="herb" size="lg" className="flex-[2]" onClick={onFinished}>
+                <Button variant="sage" size="lg" className="flex-[2]" onClick={onFinished}>
                   <CheckIcon /> Done, mark cooked
                 </Button>
               )}
             </div>
           ) : (
-            <Button variant="herb" size="lg" className="w-full" onClick={onFinished}>
+            <Button variant="sage" size="lg" className="w-full" onClick={onFinished}>
               <CheckIcon /> Done, mark cooked
             </Button>
           )}
