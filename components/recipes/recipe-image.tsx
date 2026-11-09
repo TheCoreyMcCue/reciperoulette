@@ -1,4 +1,7 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element -- images come from arbitrary recipe sites */
+import { useState } from "react";
 import { PotIcon } from "@/components/icons";
 import { placeholderColors } from "@/lib/recipes/format";
 
@@ -13,7 +16,9 @@ export function RecipeImage({
   className?: string;
   priority?: boolean;
 }) {
-  if (imageUrl) {
+  // Social CDN thumbnails expire; fall back to the placeholder when an image breaks.
+  const [failed, setFailed] = useState<string | null>(null);
+  if (imageUrl && failed !== imageUrl) {
     return (
       <img
         src={imageUrl}
@@ -21,6 +26,7 @@ export function RecipeImage({
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         referrerPolicy="no-referrer"
+        onError={() => setFailed(imageUrl)}
         className={`h-full w-full object-cover ${className}`}
       />
     );
