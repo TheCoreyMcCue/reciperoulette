@@ -96,3 +96,37 @@ describe("usage summary", () => {
     expect((await summarizeUsage("h1", "2999-01-01T00:00:00.000Z")).calls).toBe(0);
   });
 });
+
+describe("unit classification on save", () => {
+  it("classifies ingredients from the table when recipes are created and updated", async () => {
+    const input = RecipeInputSchema.parse({
+      title: "Cake",
+      ingredients: [
+        { quantity: "2", unit: "cups", item: "flour" },
+        { quantity: "1", unit: "cup", item: "gochujang", category: "fat", gramsPerCup: 290 },
+        { quantity: "3", unit: "", item: "eggs" },
+      ],
+    });
+    const r = await recipes.createRecipe({ householdId: "h1", userId: "u1", input });
+    expect(r.ingredients.map((i) => [i.category, i.gramsPerCup])).toEqual([["dry", 120], ["fat", 290], ["count", null]]);
+    const updated = await recipes.updateRecipe("h1", r.id, { ...input, ingredients: [{ ...input.ingredients[0]!, item: "sugar", category: null, gramsPerCup: null }] });
+    expect(updated.ingredients[0]).toMatchObject({ category: "dry", gramsPerCup: 200 });
+  });
+});
+
+describe("backfill helpers", () => {
+  it("scans all households' recipes and replaces ingredients only if unchanged", async () => {
+    const a = await recipes.createRecipe({ householdId: "h1", userId: "u1", input: RecipeInputSchema.parse({ title: "A" }) });
+    await recipes.createRecipe({ householdId: "h2", userId: "u2", input: RecipeInputSchema.parse({ title: "B" }) });
+    const all = [];
+    for await (const r of recipes.scanAllRecipes()) all.push(r.title);
+    expect(all.sort()).toEqual(["A", "B"]);
+
+    const newIngs = RecipeInputSchema.parse({ title: "x", ingredients: [{ item: "flour", category: "dry", gramsPerCup: 120 }] }).ingredients;
+    expect(await recipes.replaceIngredientsIfUnchanged("h1", a.id, newIngs, "stale")).toBe(false);
+    expect(await recipes.replaceIngredientsIfUnchanged("h1", a.id, newIngs, a.updatedAt)).toBe(true);
+    const after = await recipes.getRecipe("h1", a.id);
+    expect(after?.ingredients[0]?.category).toBe("dry");
+    expect(after?.updatedAt).toBe(a.updatedAt);
+  });
+});

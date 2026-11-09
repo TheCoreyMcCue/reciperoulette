@@ -20,7 +20,9 @@ const UNITS = [
   // imperial / us
   "tsp", "tsps", "teaspoon", "teaspoons", "tbsp", "tbsps", "tbs", "tablespoon", "tablespoons",
   "cup", "cups", "oz", "ounce", "ounces", "lb", "lbs", "pound", "pounds", "pint", "pints", "quart", "quarts",
-  "fl oz",
+  "fl oz", "fl. oz", "fl.oz", "fluid ounce", "fluid ounces", "gallon", "gallons", "gal", "qt", "pt",
+  // US shorthand: capital T = tablespoon, lowercase t = teaspoon, c = cup (case kept in `unit`)
+  "t", "c", "tb", "tbl", "tbls",
   // dutch spoons & measures
   "tl", "theelepel", "theelepels", "el", "eetlepel", "eetlepels", "kl", "koffielepel", "koffielepels",
   "kopje", "kopjes", "beker", "bekers", "mespunt", "mespuntje", "snuf", "snufje", "scheutje", "scheut",
@@ -37,6 +39,9 @@ const UNITS = [
 ].sort((a, b) => b.length - a.length); // longest first so "fl oz" beats "oz"
 
 const UNIT_SET = new Set(UNITS);
+
+/** Classification is filled in later (lib/units/classify.ts). */
+const UNCLASSIFIED = { category: null, gramsPerCup: null } as const;
 
 const NUM = String.raw`\d+(?:[.,]\d+)?`;
 const FRACTION = String.raw`\d+\s*/\s*\d+`;
@@ -122,11 +127,11 @@ export function parseIngredientLine(line: string, group = ""): Ingredient | null
   const { item, note } = splitNote(s);
   if (!item) {
     // e.g. "2 cloves" alone: treat the unit as the item.
-    if (unit) return { quantity, quantityValue: parseQuantityValue(quantity), unit: "", item: unit, note, group };
-    if (quantity) return { quantity: "", quantityValue: null, unit: "", item: quantity, note, group };
+    if (unit) return { quantity, quantityValue: parseQuantityValue(quantity), unit: "", item: unit, note, group, ...UNCLASSIFIED };
+    if (quantity) return { quantity: "", quantityValue: null, unit: "", item: quantity, note, group, ...UNCLASSIFIED };
     return null;
   }
-  return { quantity, quantityValue: parseQuantityValue(quantity), unit, item, note, group };
+  return { quantity, quantityValue: parseQuantityValue(quantity), unit, item, note, group, ...UNCLASSIFIED };
 }
 
 export function formatIngredient(i: Pick<Ingredient, "quantity" | "unit" | "item" | "note">): string {

@@ -53,6 +53,12 @@ pnpm dev                          # http://localhost:3000
       ]
     },
     {
+      "Sid": "Maintenance",
+      "Effect": "Allow",
+      "Action": ["dynamodb:Scan"],
+      "Resource": "arn:aws:dynamodb:REGION:ACCOUNT_ID:table/reciperoulette"
+    },
+    {
       "Sid": "TableSetup",
       "Effect": "Allow",
       "Action": [
@@ -68,7 +74,7 @@ pnpm dev                          # http://localhost:3000
 }
 ```
 
-`TransactWriteItems` is authorised through the per-item actions above (`PutItem`, `ConditionCheckItem`, …), so it doesn't need its own entry. The `TableSetup` statement is only used by `pnpm db:setup`. To keep it out of production, you can create a second key for setup and remove that statement from the key Vercel uses.
+`TransactWriteItems` is authorised through the per-item actions above (`PutItem`, `ConditionCheckItem`, …), so it doesn't need its own entry. The `TableSetup` statement is only used by `pnpm db:setup`, and `Maintenance` (Scan) only by `pnpm db:backfill-units`. To keep it out of production, you can create a second key for setup and remove that statement from the key Vercel uses.
 
 ### 2. Fill in `.env.local`
 
@@ -106,6 +112,7 @@ With seed data you can also sign in as `demo@example.com` or `partner@example.co
 | `pnpm lint` · `pnpm typecheck` · `pnpm test` | ESLint · `next typegen` + `tsc` · Vitest |
 | `pnpm db:setup` | Create the table, `GSI1` and TTL if missing (idempotent) |
 | `pnpm db:seed` | Demo household, two users, six recipes (idempotent) |
+| `pnpm db:backfill-units` | Classify existing recipes' ingredients for unit conversion (`--dry-run`, `--no-ai`, `--force`) |
 
 ---
 
@@ -218,6 +225,26 @@ Import paths:
   
   Then: schema.org JSON-LD if present (Claude only cleans it up; if the AI is unavailable, the JSON-LD is used as-is), otherwise the page's readable text. `og:image` becomes the recipe image.
 - **Social:** one adapter per platform in `lib/importers/social/`; see below.
+
+### Unit conversion
+
+Recipes can be shown as written, in metric or in US units: in **Settings → Units** (saved to your profile), or with the toggle on a recipe and in cook mode. Conversion only happens on screen; the stored recipe is never changed. Converted amounts show "≈" with a dotted underline, and you can tap one to see it as written.
+
+- **Classified once, converted many times.** Each ingredient stores a `category` (`dry`, `liquid`, `fat`, `count`, `unknown`) and, for dry and fat ingredients and thick liquids, a `gramsPerCup` density. These come from the curated table in `lib/units/densities.ts` (English and Dutch names; table values always win), or from Claude's estimate during import for anything not in the table. They're applied when a recipe is saved. Run `pnpm db:backfill-units` once for recipes saved before this feature.
+- **Metric:**
+  - Cups of dry or fat ingredients become grams (1 cup flour ≈ 120 g). Liquids become ml or litres. Thick liquids such as honey and syrup become grams.
+  - Butter is always grams, including sticks (113 g each) and spoons.
+  - Spoons up to 4 tbsp stay spoons.
+  - oz means weight for solids and fluid ounces for liquids.
+  - Counted items ("3 eggs", "3 cloves garlic") never change.
+  - If an ingredient is unclassified or has no density, it's shown as written.
+- **US:** weights become oz or lb, and volumes become tsp, tbsp, cups or quarts, with friendly fractions. Weights stay weights: grams of flour become ounces, not cups.
+- **Rounding:**
+  - grams: to the nearest 1 under 50 g, 5 under 250 g, 10 above; kg to one decimal
+  - ml: to the nearest 5 under 500 ml, 10 above; litres to one decimal
+- **Oven temperatures in steps** convert too: 350°F → 175°C, Celsius or "graden" → °F in US mode, and gas marks get a temperature added.
+- **Cup size:** a US cup is 240 ml (`US_CUP_ML` in `lib/units/constants.ts`).
+- **Servings scaling:** `convertIngredient(ingredient, system, { scale })` already scales first, then converts, then rounds, ready for when scaling is added.
 
 ### Roulette
 

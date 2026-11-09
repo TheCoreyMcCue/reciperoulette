@@ -1,4 +1,5 @@
-import { GetCommand, QueryCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import type { UnitSystem } from "@/lib/units/constants";
 import { db } from "./client";
 import { EmailTakenError, transactionConditionFailedAt } from "./errors";
 import { householdPk, k, stripKeys } from "./keys";
@@ -12,7 +13,11 @@ export type User = {
   passwordHash: string;
   householdId: string;
   createdAt: string;
+  /** Display units for recipes; missing = "metric". */
+  unitsPreference?: UnitSystem;
 };
+
+export const DEFAULT_UNITS: UnitSystem = "metric";
 
 export type Household = { householdId: string; name: string; createdBy: string; createdAt: string };
 
@@ -144,4 +149,21 @@ export async function getMember(householdId: string, userId: string): Promise<Me
     new GetCommand({ TableName: table, Key: k.member(householdId, userId) }),
   );
   return res.Item ? (stripKeys(res.Item) as Member) : null;
+}
+
+export async function setUnitsPreference(userId: string, units: UnitSystem): Promise<void> {
+  const { doc, table } = db();
+  await doc.send(
+    new UpdateCommand({
+      TableName: table,
+      Key: k.user(userId),
+      UpdateExpression: "SET unitsPreference = :u",
+      ConditionExpression: "attribute_exists(PK)",
+      ExpressionAttributeValues: { ":u": units },
+    }),
+  );
+}
+
+export async function getUnitsPreference(userId: string): Promise<UnitSystem> {
+  return (await getUserById(userId))?.unitsPreference ?? DEFAULT_UNITS;
 }

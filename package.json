@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "db:setup": "tsx --env-file-if-exists=.env.local scripts/db-setup.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/db-seed.ts",
-    "dev:memory": "RR_MEMORY_DB=1 next dev"
+    "dev:memory": "RR_MEMORY_DB=1 next dev",
+    "db:backfill-units": "tsx --env-file-if-exists=.env.local scripts/db-backfill-units.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

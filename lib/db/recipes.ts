@@ -3,17 +3,20 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  ScanCommand,
   TransactWriteCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { newId, nowIso } from "@/lib/ids";
 import {
+  type Ingredient,
   MAX_RAW_SOURCE_CHARS,
   RecipeInputSchema,
   RecipeSchema,
   type Recipe,
   type RecipeInput,
 } from "@/lib/recipes/schema";
+import { classifyIngredients } from "@/lib/units/classify";
 import { db } from "./client";
 import { isConditionalCheckFailed, NotFoundError } from "./errors";
 import { householdPk, k, stripKeys } from "./keys";
@@ -22,6 +25,11 @@ import { householdPk, k, stripKeys } from "./keys";
  * Recipe repository. Every function takes the householdId (from the session)
  * as part of the key, so one household can never address another's recipes.
  */
+
+/** Unit-conversion classification is applied on every save (table values win). */
+function withClassification(input: RecipeInput): RecipeInput {
+  return { ...input, ingredients: classifyIngredients(input.ingredients) };
+}
 
 function toRecipe(item: Record<string, unknown>): Recipe | null {
   const parsed = RecipeSchema.safeParse(stripKeys(item));
@@ -78,7 +86,7 @@ export async function createRecipe(params: {
   inRotation?: boolean;
 }): Promise<Recipe> {
   const { householdId, userId } = params;
-  const input = RecipeInputSchema.parse(params.input);
+  const input = withClassification(RecipeInputSchema.parse(params.input));
   const now = nowIso();
   const recipe: Recipe = {
     ...input,
@@ -134,7 +142,7 @@ export async function updateRecipe(
   recipeId: string,
   input: RecipeInput,
 ): Promise<Recipe> {
-  const parsed = RecipeInputSchema.parse(input);
+  const parsed = withClassification(RecipeInputSchema.parse(input));
   const names: Record<string, string> = {};
   const values: Record<string, unknown> = { ":u": nowIso() };
   const sets = EDITABLE_FIELDS.map((f, i) => {
@@ -201,4 +209,57 @@ export async function deleteRecipe(householdId: string, recipeId: string): Promi
     doc.send(new DeleteCommand({ TableName: table, Key: k.recipe(householdId, recipeId) })),
     doc.send(new DeleteCommand({ TableName: table, Key: k.recipeSource(householdId, recipeId) })),
   ]);
+}
+
+/**
+ * Maintenance only (backfill scripts): every recipe in every household, page
+ * by page. Never call this from request handlers.
+ */
+export async function* scanAllRecipes(): AsyncGenerator<Recipe> {
+  const { doc, table } = db();
+  let ExclusiveStartKey: Record<string, unknown> | undefined;
+  do {
+    const res = await doc.send(
+      new ScanCommand({
+        TableName: table,
+        FilterExpression: "entity = :e",
+        ExpressionAttributeValues: { ":e": "Recipe" },
+        ExclusiveStartKey,
+      }),
+    );
+    for (const item of res.Items ?? []) {
+      const r = toRecipe(item);
+      if (r) yield r;
+    }
+    ExclusiveStartKey = res.LastEvaluatedKey;
+  } while (ExclusiveStartKey);
+}
+
+/**
+ * Maintenance only: replaces a recipe's ingredients without touching
+ * updatedAt, and only if nobody edited the recipe since it was read.
+ * Returns false if the recipe changed in the meantime.
+ */
+export async function replaceIngredientsIfUnchanged(
+  householdId: string,
+  recipeId: string,
+  ingredients: Ingredient[],
+  expectedUpdatedAt: string,
+): Promise<boolean> {
+  const { doc, table } = db();
+  try {
+    await doc.send(
+      new UpdateCommand({
+        TableName: table,
+        Key: k.recipe(householdId, recipeId),
+        UpdateExpression: "SET ingredients = :i",
+        ConditionExpression: "updatedAt = :u",
+        ExpressionAttributeValues: { ":i": ingredients, ":u": expectedUpdatedAt },
+      }),
+    );
+    return true;
+  } catch (err) {
+    if (isConditionalCheckFailed(err)) return false;
+    throw err;
+  }
 }

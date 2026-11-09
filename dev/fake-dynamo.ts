@@ -20,6 +20,7 @@ type Input = Record<string, unknown> & {
   IndexName?: string;
   ScanIndexForward?: boolean;
   ReturnValues?: string;
+  FilterExpression?: string;
   TransactItems?: Record<string, Input>[];
 };
 
@@ -41,6 +42,11 @@ export class FakeDynamo {
   private checkCondition(existing: Item | undefined, input: Input) {
     const expr = input.ConditionExpression;
     if (!expr) return true;
+    const eq = expr.trim().match(/^(\S+)\s*=\s*(:\w+)$/);
+    if (eq) {
+      const attr = this.name(eq[1]!, input.ExpressionAttributeNames);
+      return existing !== undefined && existing[attr] === input.ExpressionAttributeValues?.[eq[2]!];
+    }
     const m = expr.trim().match(/^(attribute_exists|attribute_not_exists)\((\S+)\)$/);
     if (!m) throw new Error(`FakeDynamo: unsupported condition ${expr}`);
     const attr = this.name(m[2]!, input.ExpressionAttributeNames);
@@ -144,6 +150,12 @@ export class FakeDynamo {
       }
       case "QueryCommand":
         return this.query(input);
+      case "ScanCommand": {
+        // Supports FilterExpression "attr = :v" only.
+        const f = input.FilterExpression ? String(input.FilterExpression).match(/^(\S+)\s*=\s*(:\w+)$/) : null;
+        const items = [...this.items.values()].filter((it) => !f || it[this.name(f[1]!, input.ExpressionAttributeNames)] === input.ExpressionAttributeValues?.[f[2]!]);
+        return { Items: items.map((i) => structuredClone(i)) };
+      }
       case "TransactWriteCommand": {
         const ops = input.TransactItems ?? [];
         const reasons = ops.map((op) => {

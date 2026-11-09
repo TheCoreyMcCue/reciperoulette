@@ -12,8 +12,8 @@ const base: AiRecipe = {
   cookTimeMinutes: 90,
   totalTimeMinutes: null,
   ingredients: [
-    { quantity: "500", quantityValue: 500, unit: "g", item: "spliterwten", note: "afgespoeld", group: "Voor de soep" },
-    { quantity: "", quantityValue: null, unit: "", item: "  ", note: "", group: "" },
+    { quantity: "500", quantityValue: 500, unit: "g", item: "spliterwten", note: "afgespoeld", group: "Voor de soep", category: "liquid", gramsPerCup: 50 },
+    { quantity: "", quantityValue: null, unit: "", item: "  ", note: "", group: "", category: "unknown", gramsPerCup: null },
   ],
   steps: [{ text: "Breng aan de kook.", group: "" }, { text: "", group: "" }],
   tags: ["Soup", "winter"],
@@ -48,6 +48,25 @@ describe("aiToRecipeInput", () => {
     expect(r.ingredients).toEqual([]);
     expect(r.steps[0]!.text).toHaveLength(4000);
     expect(r.sourceUrl).toBe("");
+  });
+
+  it("keeps AI unit classifications, but the density table wins", () => {
+    const r = aiToRecipeInput(
+      {
+        ...base,
+        ingredients: [
+          base.ingredients[0]!, // AI said liquid/50; table says dry/195
+          { quantity: "2", quantityValue: 2, unit: "tbsp", item: "gochujang", note: "", group: "", category: "fat", gramsPerCup: 290 },
+          { quantity: "1", quantityValue: 1, unit: "cup", item: "dashi", note: "", group: "", category: "liquid", gramsPerCup: 240 },
+        ],
+      },
+      { sourceType: "text" },
+    );
+    expect(r.ingredients.map((i) => [i.category, i.gramsPerCup])).toEqual([
+      ["dry", 195],
+      ["fat", 290],
+      ["liquid", null], // thin-liquid density dropped so it stays in ml
+    ]);
   });
 
   it("prefers known source metadata", () => {

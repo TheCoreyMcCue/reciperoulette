@@ -12,6 +12,9 @@ export type SourceType = (typeof SOURCE_TYPES)[number];
 const text = (max: number) => z.string().trim().max(max).default("");
 const minutes = z.number().int().min(0).max(60 * 24 * 14).nullable().default(null);
 
+export const INGREDIENT_CATEGORIES = ["dry", "liquid", "fat", "count", "unknown"] as const;
+export type IngredientCategory = (typeof INGREDIENT_CATEGORIES)[number];
+
 export const IngredientSchema = z.object({
   /** As written in the source: "1 1/2", "½", "2-3", "a pinch". */
   quantity: text(40),
@@ -25,6 +28,13 @@ export const IngredientSchema = z.object({
   note: text(200),
   /** Section heading, e.g. "For the sauce". "" = no group. */
   group: text(100),
+  /**
+   * How the ingredient converts between unit systems (see lib/units). Null =
+   * not classified yet; "unknown" = classified but we don't know.
+   */
+  category: z.enum(INGREDIENT_CATEGORIES).nullable().default(null),
+  /** Weight of one US cup (240 ml) in grams, for dry/fat ingredients and thick liquids. */
+  gramsPerCup: z.number().positive().max(2000).nullable().default(null),
 });
 export type Ingredient = z.infer<typeof IngredientSchema>;
 

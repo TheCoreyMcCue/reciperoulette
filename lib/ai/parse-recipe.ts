@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import type { RecipeInput } from "@/lib/recipes/schema";
 import { aiToRecipeInput, type SourceMeta } from "./map";
 import { SYSTEM_PROMPT } from "./prompt";
+import { anthropic } from "./client";
 import { AiRecipeSchema, type AiRecipe } from "./schema";
 
 /**
@@ -38,13 +39,6 @@ export type ParseResult =
 export const MAX_SOURCE_CHARS = 60_000;
 export const MAX_IMAGES = 6;
 
-let client: Anthropic | undefined;
-function anthropic(): Anthropic {
-  const key = env().ANTHROPIC_API_KEY;
-  if (!key) throw new Error("ANTHROPIC_API_KEY is not configured");
-  client ??= new Anthropic({ apiKey: key, timeout: 55_000, maxRetries: 1 });
-  return client;
-}
 
 function buildUserContent(input: ParseInput): { content: Anthropic.Beta.BetaContentBlockParam[]; truncated: boolean } {
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];

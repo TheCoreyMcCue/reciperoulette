@@ -1,4 +1,5 @@
 import { parseQuantityValue } from "@/lib/recipes/ingredients";
+import { classifyIngredient, sanitizeClassification } from "@/lib/units/classify";
 import { RecipeInputSchema, type RecipeInput, type SourceType } from "@/lib/recipes/schema";
 import type { AiRecipe } from "./schema";
 
@@ -27,14 +28,18 @@ export function aiToRecipeInput(ai: Partial<AiRecipe>, meta: SourceMeta): Recipe
     .map((i) => {
       const quantity = clip(i.quantity, 40);
       const qv = typeof i.quantityValue === "number" && Number.isFinite(i.quantityValue) && i.quantityValue >= 0 ? i.quantityValue : null;
-      return {
+      const ai = sanitizeClassification(i.category, i.gramsPerCup);
+      // Table values win over the AI's estimate.
+      return classifyIngredient({
         quantity,
         quantityValue: qv ?? parseQuantityValue(quantity),
         unit: clip(i.unit, 40),
         item: clip(i.item, 200),
         note: clip(i.note, 200),
         group: clip(i.group, 100),
-      };
+        category: ai?.category ?? null,
+        gramsPerCup: ai?.gramsPerCup ?? null,
+      });
     });
   const steps = (Array.isArray(ai.steps) ? ai.steps : [])
     .filter((s) => s && clip(s.text, 4000))

@@ -12,6 +12,13 @@ export const AiIngredientSchema = z.object({
   item: z.string().describe("The ingredient itself."),
   note: z.string().describe('Preparation or extra note, e.g. "finely chopped", "optional". Empty if none.'),
   group: z.string().describe('Section heading the ingredient belongs to, e.g. "For the sauce". Empty if none.'),
+  category: z
+    .enum(["dry", "liquid", "fat", "count", "unknown"])
+    .describe("How the ingredient is measured, used for unit conversion (see instructions)."),
+  gramsPerCup: z
+    .number()
+    .nullable()
+    .describe("Estimated grams in one US cup (240 ml) of this ingredient as prepared, for dry, fat and thick-liquid ingredients; otherwise null."),
 });
 
 export const AiStepSchema = z.object({

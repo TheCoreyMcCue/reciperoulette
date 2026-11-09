@@ -65,6 +65,13 @@ export function RecipeForm({ initial, recipeId, rawSourceText, banner, submitLab
     for (const i of initial.ingredients) m.set(formatIngredient(i), i);
     return m;
   }, [initial.ingredients]);
+  // Edited lines keep the unit-conversion classification of the same ingredient
+  // (e.g. "1 cup flour" → "2 cups flour"); the server's table lookup still wins.
+  const classByItem = useMemo(() => {
+    const m = new Map<string, Pick<Ingredient, "category" | "gramsPerCup">>();
+    for (const i of initial.ingredients) m.set(i.item.toLowerCase(), { category: i.category, gramsPerCup: i.gramsPerCup });
+    return m;
+  }, [initial.ingredients]);
 
   const buildInput = (): RecipeInput => {
     const ingredients = ingredientSections.flatMap((sec) =>
@@ -75,7 +82,9 @@ export function RecipeForm({ initial, recipeId, rawSourceText, banner, submitLab
         .map((line) => {
           const orig = originals.get(line);
           const parsed = orig ? { ...orig } : parseIngredientLine(line);
-          return parsed ? { ...parsed, group: sec.name.trim() } : null;
+          if (!parsed) return null;
+          const cls = orig ? null : classByItem.get(parsed.item.toLowerCase());
+          return { ...parsed, ...(cls ?? {}), group: sec.name.trim() };
         })
         .filter((x): x is Ingredient => x !== null),
     );

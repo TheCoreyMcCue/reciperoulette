@@ -8,6 +8,10 @@ import { RecipeImage } from "@/components/recipes/recipe-image";
 import { PageLoading } from "@/components/ui/spinner";
 import { requireSession } from "@/lib/auth/session";
 import { getRecipe } from "@/lib/db/recipes";
+import { getUnitsPreference } from "@/lib/db/users";
+import { IngredientLine, StepText } from "@/components/units/converted";
+import { UnitToggle } from "@/components/units/unit-toggle";
+import { UnitsProvider } from "@/components/units/units-context";
 import { formatMinutes } from "@/lib/recipes/format";
 import { groupBy } from "@/lib/recipes/ingredients";
 
@@ -29,7 +33,10 @@ export default function RecipePage({ params }: PageProps<"/recipes/[id]">) {
 async function RecipeDetail({ params }: Pick<PageProps<"/recipes/[id]">, "params">) {
   const session = await requireSession();
   const { id } = await params;
-  const recipe = /^[A-Za-z0-9_-]{1,64}$/.test(id) ? await getRecipe(session.householdId, id) : null;
+  const [recipe, units] = await Promise.all([
+    /^[A-Za-z0-9_-]{1,64}$/.test(id) ? getRecipe(session.householdId, id) : null,
+    getUnitsPreference(session.userId),
+  ]);
   if (!recipe) notFound();
 
   const times = [
@@ -47,6 +54,7 @@ async function RecipeDetail({ params }: Pick<PageProps<"/recipes/[id]">, "params
   }
 
   return (
+    <UnitsProvider initial={units}>
     <article className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:items-start">
       <div className="space-y-4 md:sticky md:top-24">
         <div className="aspect-[4/3] overflow-hidden rounded-3xl">
@@ -105,7 +113,10 @@ async function RecipeDetail({ params }: Pick<PageProps<"/recipes/[id]">, "params
         )}
 
         <section className="rounded-3xl border border-border bg-surface p-5">
-          <h2 className="font-display text-2xl font-semibold">Ingredients</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-2xl font-semibold">Ingredients</h2>
+            <UnitToggle compact />
+          </div>
           {recipe.ingredients.length === 0 && <p className="mt-2 text-muted">No ingredients yet.</p>}
           {groupBy(recipe.ingredients).map((g) => (
             <div key={g.group || "_"} className="mt-4">
@@ -114,11 +125,7 @@ async function RecipeDetail({ params }: Pick<PageProps<"/recipes/[id]">, "params
                 {g.items.map((ing, i) => (
                   <li key={i} className="flex gap-3">
                     <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
-                    <span>
-                      {ing.quantity || ing.unit ? <strong>{[ing.quantity, ing.unit].filter(Boolean).join(" ")} </strong> : null}
-                      {ing.item}
-                      {ing.note && <span className="text-muted">, {ing.note}</span>}
-                    </span>
+                    <IngredientLine ingredient={ing} />
                   </li>
                 ))}
               </ul>
@@ -138,7 +145,9 @@ async function RecipeDetail({ params }: Pick<PageProps<"/recipes/[id]">, "params
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-bold text-primary" aria-hidden="true">
                       {s.n}
                     </span>
-                    <p className="pt-0.5 leading-relaxed">{s.text}</p>
+                    <p className="pt-0.5 leading-relaxed">
+                      <StepText text={s.text} />
+                    </p>
                   </li>
                 ))}
               </ol>
@@ -147,5 +156,6 @@ async function RecipeDetail({ params }: Pick<PageProps<"/recipes/[id]">, "params
         </section>
       </div>
     </article>
+    </UnitsProvider>
   );
 }

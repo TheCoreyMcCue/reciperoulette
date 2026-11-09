@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, XIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/cn";
-import { formatIngredient, groupBy } from "@/lib/recipes/ingredients";
+import { groupBy } from "@/lib/recipes/ingredients";
+import { IngredientLine, StepText } from "@/components/units/converted";
+import { UnitToggle } from "@/components/units/unit-toggle";
 import type { Recipe } from "@/lib/recipes/schema";
 
 type Tab = "ingredients" | "steps";
@@ -115,6 +117,7 @@ export function CookMode({ recipe, onClose, onFinished }: { recipe: Recipe; onCl
           <p className="truncate font-display text-lg font-semibold">{recipe.title}</p>
           <p className="text-xs text-muted">{awake ? "Screen will stay on" : "Tip: keep your screen on while cooking"}</p>
         </div>
+        <UnitToggle compact />
       </header>
 
       <div className="flex gap-2 px-3 pt-3" role="tablist" aria-label="Cook mode sections">
@@ -148,7 +151,7 @@ export function CookMode({ recipe, onClose, onFinished }: { recipe: Recipe; onCl
                       <li key={i}>
                         <label className={cn("flex min-h-14 cursor-pointer items-center gap-4 rounded-2xl px-3", done && "text-muted line-through")}>
                           <input type="checkbox" checked={done} onChange={() => toggleIng(i)} className="h-7 w-7 shrink-0 accent-[var(--herb)]" />
-                          <span>{formatIngredient(ing)}</span>
+                          <IngredientLine ingredient={ing} interactive={false} />
                         </label>
                       </li>
                     );
@@ -172,7 +175,9 @@ export function CookMode({ recipe, onClose, onFinished }: { recipe: Recipe; onCl
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
               <div className="h-full bg-primary transition-all" style={{ width: `${((stepIdx + 1) / steps.length) * 100}%` }} />
             </div>
-            <p className="mt-6 flex-1 text-2xl leading-relaxed sm:text-3xl">{steps[stepIdx]?.text}</p>
+            <p className="mt-6 flex-1 text-2xl leading-relaxed sm:text-3xl">
+              <StepText text={steps[stepIdx]?.text ?? ""} />
+            </p>
           </div>
         ) : (
           <ol className="mx-auto max-w-2xl space-y-3">
@@ -189,7 +194,9 @@ export function CookMode({ recipe, onClose, onFinished }: { recipe: Recipe; onCl
                           <input type="checkbox" checked={done} onChange={() => toggleStep(i)} className="mt-1.5 h-7 w-7 shrink-0 accent-[var(--herb)]" />
                           <span>
                             <span className="font-bold">{i + 1}. </span>
-                            <span className={cn(done && "line-through")}>{s.text}</span>
+                            <span className={cn(done && "line-through")}>
+                              <StepText text={s.text} />
+                            </span>
                           </span>
                         </label>
                       </li>

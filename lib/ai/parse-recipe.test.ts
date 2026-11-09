@@ -25,7 +25,7 @@ const recipe: AiRecipe = {
   prepTimeMinutes: null,
   cookTimeMinutes: 90,
   totalTimeMinutes: null,
-  ingredients: [{ quantity: "500", quantityValue: 500, unit: "g", item: "spliterwten", note: "", group: "Voor de soep" }],
+  ingredients: [{ quantity: "500", quantityValue: 500, unit: "g", item: "spliterwten", note: "", group: "Voor de soep", category: "dry", gramsPerCup: 195 }],
   steps: [{ text: "Breng aan de kook.", group: "" }],
   tags: ["soup"],
   cuisine: "Dutch",

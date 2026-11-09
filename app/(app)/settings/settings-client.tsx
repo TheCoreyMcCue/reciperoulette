@@ -3,6 +3,9 @@
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, inputClass } from "@/components/ui/field";
+import { UnitToggleView } from "@/components/units/unit-toggle";
+import type { UnitSystem } from "@/lib/units/constants";
+import { setUnitsPreferenceAction } from "../units-actions";
 import { createInviteAction, revokeSessionAction, type InviteState } from "./actions";
 
 export function InviteCard() {
@@ -94,6 +97,33 @@ export function ThemeToggle() {
           {t === "system" ? "Auto" : t}
         </button>
       ))}
+    </div>
+  );
+}
+
+export function UnitsPreference({ initial }: { initial: UnitSystem }) {
+  const [value, setValue] = useState<UnitSystem>(initial);
+  const [saved, setSaved] = useState<null | boolean>(null);
+  const [, start] = useTransition();
+  return (
+    <div className="space-y-2">
+      <UnitToggleView
+        value={value}
+        onChange={(s) => {
+          setValue(s);
+          setSaved(null);
+          start(async () => setSaved((await setUnitsPreferenceAction(s)).ok));
+        }}
+      />
+      <p className="text-sm text-muted" aria-live="polite">
+        {saved === false
+          ? "Couldn't save that. Please try again."
+          : value === "metric"
+            ? "Cups become grams (or ml for liquids). Small spoon amounts stay spoons."
+            : value === "us"
+              ? "Grams become ounces and pounds; ml become cups and spoons."
+              : "Recipes are shown exactly as written."}
+      </p>
     </div>
   );
 }

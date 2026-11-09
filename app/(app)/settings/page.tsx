@@ -5,10 +5,10 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { listMySessions } from "@/lib/auth/manage";
 import { requireSession } from "@/lib/auth/session";
 import { summarizeUsage } from "@/lib/db/usage";
-import { getHousehold, getUserById, listMembers } from "@/lib/db/users";
+import { DEFAULT_UNITS, getHousehold, getUserById, listMembers } from "@/lib/db/users";
 import { env } from "@/lib/env";
 import { signOutAction } from "./actions";
-import { InviteCard, RevokeButton, ThemeToggle } from "./settings-client";
+import { InviteCard, RevokeButton, ThemeToggle, UnitsPreference } from "./settings-client";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -119,6 +119,10 @@ async function SettingsContent() {
           <p className="text-xs text-muted">Estimate based on Claude Sonnet 5.5 list prices. Each call is also logged on the server.</p>
         </Section>
       )}
+
+      <Section title="Units" description="How ingredient amounts and oven temperatures are shown. You can also switch on any recipe.">
+        <UnitsPreference initial={user?.unitsPreference ?? DEFAULT_UNITS} />
+      </Section>
 
       <Section title="Appearance">
         <ThemeToggle />
