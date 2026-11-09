@@ -15,7 +15,10 @@ const ITEMS: { href: string; label: string; Icon: ComponentType<SVGProps<SVGSVGE
 ];
 
 export function BottomNav() {
-  const pathname = usePathname();
+  return <BottomNavView pathname={usePathname()} />;
+}
+
+export function BottomNavView({ pathname }: { pathname: string }) {
   return (
     <nav
       aria-label="Main"
@@ -48,7 +51,10 @@ export function BottomNav() {
 }
 
 export function TopNav() {
-  const pathname = usePathname();
+  return <TopNavView pathname={usePathname()} />;
+}
+
+export function TopNavView({ pathname }: { pathname: string }) {
   return (
     <header className="sticky top-0 z-40 hidden border-b border-border bg-bg/90 backdrop-blur md:block">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
