@@ -234,7 +234,7 @@ Recipes can be shown as written, in metric or in US units: in **Settings → Uni
 - **Metric:**
   - Cups of dry or fat ingredients become grams (1 cup flour ≈ 120 g). Liquids become ml or litres. Thick liquids such as honey and syrup become grams.
   - Butter is always grams, including sticks (113 g each) and spoons.
-  - Spoons up to 4 tbsp stay spoons.
+  - Spoons up to 4 tbsp stay spoons, with the metric amount alongside: "1 tsp baking powder (≈ 4 g)", "1 tsp vanilla (≈ 5 ml)".
   - oz means weight for solids and fluid ounces for liquids.
   - Counted items ("3 eggs", "3 cloves garlic") never change.
   - If an ingredient is unclassified or has no density, it's shown as written.
