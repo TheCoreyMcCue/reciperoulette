@@ -82,3 +82,17 @@ describe("rate limit", () => {
     expect((await hitRateLimit("t", 3, 60, new Date("2026-01-01T00:01:10Z"))).allowed).toBe(true);
   });
 });
+
+describe("usage summary", () => {
+  it("sums this household's usage since a date", async () => {
+    const { logUsage, summarizeUsage } = await import("./usage");
+    const base = { userId: "u1", model: "m", source: "text", cacheReadTokens: 0, cacheWriteTokens: 0, durationMs: 1, ok: true };
+    await logUsage({ ...base, householdId: "h1", inputTokens: 100, outputTokens: 10 });
+    await logUsage({ ...base, householdId: "h1", inputTokens: 50, outputTokens: 5 });
+    await logUsage({ ...base, householdId: "h2", inputTokens: 999, outputTokens: 999 });
+    await recipes.createRecipe({ householdId: "h1", userId: "u1", input: RecipeInputSchema.parse({ title: "x" }) });
+    const s = await summarizeUsage("h1", "2000-01-01T00:00:00.000Z");
+    expect(s).toMatchObject({ calls: 2, inputTokens: 150, outputTokens: 15 });
+    expect((await summarizeUsage("h1", "2999-01-01T00:00:00.000Z")).calls).toBe(0);
+  });
+});

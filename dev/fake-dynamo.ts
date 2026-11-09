@@ -90,15 +90,19 @@ export class FakeDynamo {
     const names = input.ExpressionAttributeNames ?? {};
     const values = input.ExpressionAttributeValues ?? {};
     const expr = input.KeyConditionExpression ?? "";
-    const m = expr.match(/^(\S+)\s*=\s*(:\w+)(?:\s+AND\s+begins_with\((\S+),\s*(:\w+)\))?$/);
+    const m = expr.match(/^(\S+)\s*=\s*(:\w+)(?:\s+AND\s+(?:begins_with\((\S+),\s*(:\w+)\)|(\S+)\s*>=\s*(:\w+)))?$/);
     if (!m) throw new Error(`FakeDynamo: unsupported key condition ${expr}`);
     const hk = this.name(m[1]!, names);
     const hv = values[m[2]!];
-    const rk = m[3] ? this.name(m[3], names) : undefined;
+    const rk = m[3] ? this.name(m[3], names) : m[5] ? this.name(m[5], names) : undefined;
     const prefix = m[4] ? String(values[m[4]]) : undefined;
+    const gte = m[6] ? String(values[m[6]]) : undefined;
     const rangeKey = rk ?? (input.IndexName ? "GSI1SK" : "SK");
     let out = [...this.items.values()].filter(
-      (it) => it[hk] === hv && (prefix === undefined || String(it[rk!] ?? "").startsWith(prefix)),
+      (it) =>
+        it[hk] === hv &&
+        (prefix === undefined || String(it[rk!] ?? "").startsWith(prefix)) &&
+        (gte === undefined || String(it[rk!] ?? "") >= gte),
     );
     out.sort((a, b) => String(a[rangeKey]).localeCompare(String(b[rangeKey])));
     if (input.ScanIndexForward === false) out = out.reverse();

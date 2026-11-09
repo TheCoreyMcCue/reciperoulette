@@ -40,6 +40,11 @@ export async function POST(req: Request) {
     throw err;
   }
 
+  // JSON only: blocks simple cross-site form posts (in addition to SameSite=Lax cookies).
+  if (!req.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    return json({ status: "error", message: "Invalid request." }, 415);
+  }
+
   const length = Number(req.headers.get("content-length") ?? 0);
   if (length > MAX_BODY_BYTES) {
     return json({ status: "error", message: "Those photos are too large. Try fewer images at a time." }, 413);

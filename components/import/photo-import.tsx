@@ -116,7 +116,7 @@ export function PhotoImport({ onSubmit, translate }: { onSubmit: (r: ImportReque
               <CameraIcon /> Take a photo
             </Button>
             <Button size="lg" variant="secondary" onClick={() => pickRef.current?.click()} className="md:col-span-2">
-              <PlusIcon /> Choose photos or screenshots
+              <PlusIcon /> Choose photos
             </Button>
           </div>
         </div>

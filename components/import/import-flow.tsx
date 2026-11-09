@@ -148,10 +148,12 @@ export function ImportFlow({
         {tab === "url" && <UrlImport initialUrl={initialUrl} onSubmit={(r) => submit(r, "Fetching the page…")} translate={translate} />}
       </div>
 
-      <label className="flex min-h-10 items-center gap-3 text-sm font-semibold">
-        <input type="checkbox" className="h-5 w-5 accent-[var(--primary)]" checked={translate} onChange={(e) => setTranslate(e.target.checked)} />
-        Translate to English
-        <span className="font-normal text-muted">(otherwise we keep the original language)</span>
+      <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl px-1 py-2">
+        <input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary)]" checked={translate} onChange={(e) => setTranslate(e.target.checked)} />
+        <span>
+          <span className="block font-semibold">Translate to English</span>
+          <span className="block text-sm text-muted">Otherwise we keep the recipe in its original language.</span>
+        </span>
       </label>
 
       <Link href="/recipes/new" className={buttonClass("ghost", "md", "w-full")}>

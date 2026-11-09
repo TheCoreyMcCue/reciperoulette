@@ -4,7 +4,9 @@ import { PageLoading } from "@/components/ui/spinner";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { listMySessions } from "@/lib/auth/manage";
 import { requireSession } from "@/lib/auth/session";
+import { summarizeUsage } from "@/lib/db/usage";
 import { getHousehold, getUserById, listMembers } from "@/lib/db/users";
+import { env } from "@/lib/env";
 import { signOutAction } from "./actions";
 import { InviteCard, RevokeButton, ThemeToggle } from "./settings-client";
 
@@ -38,12 +40,19 @@ export default function SettingsPage() {
 
 async function SettingsContent() {
   const session = await requireSession();
-  const [user, household, members, sessions] = await Promise.all([
+  const now = new Date();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const [user, household, members, sessions, usage] = await Promise.all([
     getUserById(session.userId),
     getHousehold(session.householdId),
     listMembers(session.householdId),
     listMySessions(session.userId, session.sessionId),
+    summarizeUsage(session.householdId, monthStart).catch(() => null),
   ]);
+  // Approximate list prices for Claude Sonnet 5.5 (USD per million tokens).
+  const cost = usage
+    ? (usage.inputTokens * 2 + usage.cacheWriteTokens * 2.5 + usage.cacheReadTokens * 0.2 + usage.outputTokens * 10) / 1_000_000
+    : 0;
   const me = members.find((m) => m.userId === session.userId);
 
   return (
@@ -88,6 +97,28 @@ async function SettingsContent() {
           ))}
         </ul>
       </Section>
+
+      {usage && (
+        <Section title="AI imports this month" description={`Limit: ${env().AI_DAILY_PARSE_LIMIT} per day for the household.`}>
+          <dl className="grid grid-cols-3 gap-3 text-center">
+            <div className="rounded-2xl bg-surface-2 p-3">
+              <dt className="text-xs text-muted">Imports</dt>
+              <dd className="font-display text-2xl font-semibold">{usage.calls}</dd>
+            </div>
+            <div className="rounded-2xl bg-surface-2 p-3">
+              <dt className="text-xs text-muted">Tokens</dt>
+              <dd className="font-display text-2xl font-semibold">
+                {Math.round((usage.inputTokens + usage.outputTokens + usage.cacheReadTokens + usage.cacheWriteTokens) / 1000)}k
+              </dd>
+            </div>
+            <div className="rounded-2xl bg-surface-2 p-3">
+              <dt className="text-xs text-muted">≈ Cost</dt>
+              <dd className="font-display text-2xl font-semibold">${cost.toFixed(2)}</dd>
+            </div>
+          </dl>
+          <p className="text-xs text-muted">Estimate based on Claude Sonnet 5.5 list prices. Each call is also logged on the server.</p>
+        </Section>
+      )}
 
       <Section title="Appearance">
         <ThemeToggle />
