@@ -114,18 +114,6 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
 
-  /* Temporary aliases for the old token names, removed once every screen is migrated. */
-  --color-bg: var(--paper);
-  --color-surface: var(--card);
-  --color-surface-2: var(--kraft);
-  --color-border: var(--line);
-  --color-primary: var(--paprika);
-  --color-primary-ink: var(--on-paprika);
-  --color-primary-soft: var(--paprika-soft);
-  --color-herb: var(--sage-ink);
-  --color-herb-soft: var(--sage-soft);
-  --color-ring: var(--paprika);
-
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-heading), ui-serif, Georgia, serif;
   --font-script: var(--font-hand), "Bradley Hand", cursive;
@@ -275,17 +263,5 @@ body {
   }
   to {
     transform: translateX(250%);
-  }
-}
-
-/* Kept for existing call sites until the roulette is restyled. */
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
